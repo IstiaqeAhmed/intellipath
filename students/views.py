@@ -1,4 +1,5 @@
 from .models import Course, QuizResult  # QuizResult ইমপোর্ট করুন
+from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from .models import Course
 import google.generativeai as genai
@@ -39,6 +40,8 @@ def generate_quiz(request):
     return render(request, 'students/quiz.html', {'quiz_content': quiz_content, 'topic': topic})
 
 
+@login_required(login_url='login')  # <--- এই লাইনটি যোগ করুন
+# আপনার বাকি কোড...
 def dashboard(request):
     courses = Course.objects.all()
 
