@@ -21,7 +21,7 @@ def generate_quiz(request):
         topic = request.POST.get('topic')
         if topic:
             try:
-                genai.configure(api_key=MY_API_KEY)
+                genai.configure(api_key=GOOGLE_API_KEY)
                 model = genai.GenerativeModel('gemini-2.5-flash')
                 prompt = f"Create a short quiz with 3 MCQs about '{topic}'. Show correct answers at the end."
                 response = model.generate_content(prompt)
@@ -59,7 +59,7 @@ def dashboard(request):
         user_question = request.POST.get('question')
         if user_question:
             try:
-                genai.configure(api_key=MY_API_KEY)
+                genai.configure(api_key=GOOGLE_API_KEY)
                 # আপনার লিস্ট অনুযায়ী লেটেস্ট মডেল ব্যবহার করছি
                 model = genai.GenerativeModel('gemini-2.5-flash')
                 response = model.generate_content(user_question)
