@@ -1,0 +1,53 @@
+<!DOCTYPE html>
+<html lang="bn">
+<head>
+    <meta charset="UTF-8">
+    <title>AI কুইজ জেনারেটর</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body { background-color: #f0f2f5; }
+        .quiz-card { border-top: 5px solid #6F42C1; }
+    </style>
+</head>
+<body>
+
+<div class="container mt-5">
+    <div class="row justify-content-center">
+        <div class="col-md-8">
+            
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-primary">🧠 AI কুইজ জেনারেটর</h2>
+                <p class="text-muted">যেকোনো টপিকের নাম লিখুন, AI আপনার মেধা যাচাই করবে!</p>
+            </div>
+
+            <div class="card shadow-sm p-4 mb-4">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="input-group input-group-lg">
+                        <input type="text" name="topic" class="form-control" placeholder="টপিক লিখুন (যেমন: Python, History of Bangladesh...)" required>
+                        <button type="submit" class="btn btn-primary fw-bold">কুইজ তৈরি করো 🚀</button>
+                    </div>
+                </form>
+            </div>
+
+            {% if quiz_content %}
+            <div class="card shadow quiz-card p-4">
+                <h4 class="mb-3">টপিক: <span class="text-success">{{ topic }}</span></h4>
+                
+                <div class="alert alert-secondary">
+                    {{ quiz_content | linebreaks }}
+                </div>
+                
+                <div class="text-center mt-3">
+                    <a href="{% url 'quiz' %}" class="btn btn-outline-danger">নতুন কুইজ দিন</a>
+                    <a href="{% url 'home' %}" class="btn btn-outline-primary">ড্যাশবোর্ডে ফিরুন</a>
+                </div>
+            </div>
+            {% endif %}
+
+        </div>
+    </div>
+</div>
+
+</body>
+</html>
