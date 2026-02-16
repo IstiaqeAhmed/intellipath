@@ -1,3 +1,6 @@
 venv/
 __pycache__/
 *.pyc
+intellipath/config.py
+api key.txt
+*.env

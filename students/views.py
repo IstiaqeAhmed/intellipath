@@ -1,11 +1,11 @@
 from .models import Course, QuizResult  # QuizResult ইমপোর্ট করুন
 from django.contrib.auth.decorators import login_required
+from intellipath.config import GOOGLE_API_KEY
 from django.shortcuts import render
 from .models import Course
 import google.generativeai as genai
 
-# আপনার API Key এখানে বসান (অবশ্যই কোটেশনের ভেতরে)
-MY_API_KEY = 'AIzaSyCD3WAFvYE4HH03OCXgZPgeK1KZUiH30Cw'  # <--- আপনার লম্বা কী এখানে
+genai.configure(api_key=GOOGLE_API_KEY)
 
 
 # ফাইলের শুরুতে import এবং API Key যেমন ছিল তেমনই থাকবে...
