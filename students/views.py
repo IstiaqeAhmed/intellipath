@@ -1,8 +1,11 @@
 from .models import Course, QuizResult  # QuizResult ইমপোর্ট করুন
 from django.contrib.auth.decorators import login_required
 from intellipath.config import GOOGLE_API_KEY
-from django.shortcuts import render
+from django.shortcuts import render, redirect  # এখানে redirect যোগ করা হয়েছে
 from .models import Course
+from .forms import RegistrationForm
+from django.contrib import messages
+from .models import StudentProfile
 import google.generativeai as genai
 
 genai.configure(api_key=GOOGLE_API_KEY)
@@ -43,6 +46,14 @@ def generate_quiz(request):
 @login_required(login_url='login')  # <--- এই লাইনটি যোগ করুন
 # আপনার বাকি কোড...
 def dashboard(request):
+    # --- নতুন সিকিউরিটি চেক ---
+    if hasattr(request.user, 'studentprofile'):
+        if not request.user.studentprofile.is_approved:
+            # পেন্ডিং পেজ দেখাবে
+            return render(request, 'students/pending.html')
+    # -------------------------
+
+    # ... আপনার বাকি ড্যাশবোর্ড কোড যেমন ছিল তেমনই থাকবে ...
     courses = Course.objects.all()
 
     # ১. কুইজ হিস্ট্রি নিয়ে আসা
@@ -80,3 +91,25 @@ def course_content(request, course_id):
     # আইডি অনুযায়ী নির্দিষ্ট কোর্সটি খুঁজে বের করা
     course = Course.objects.get(id=course_id)
     return render(request, 'students/course_content.html', {'course': course})
+
+
+def register(request):
+    if request.method == 'POST':
+        form = RegistrationForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(
+                request, 'Registration successful! Please wait for admin approval.')
+            return redirect('login')
+    else:
+        form = RegistrationForm()
+    return render(request, 'students/register.html', {'form': form})
+
+
+def home(request):
+    # যদি ইউজার অলরেডি লগইন করা থাকে
+    if request.user.is_authenticated:
+        return redirect('dashboard')
+
+    # লগইন না থাকলে রেজিস্ট্রেশন পেজ দেখাবে
+    return render(request, 'students/register.html')

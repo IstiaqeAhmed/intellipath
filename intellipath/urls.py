@@ -21,6 +21,10 @@ from students import views
 
 urlpatterns = [
     path('admin/', admin.site.urls),
+    # এই লাইনটি থাকলেই আপনার নতুন ফাইল কাজ করবে
+    path('', include('students.urls')),
+    path('register/', views.register, name='register'),
+    path('admin/', admin.site.urls),
 
     # ২. এই লাইনটি যোগ করুন (লগইন সিস্টেমের জন্য)
     path('accounts/', include('django.contrib.auth.urls')),

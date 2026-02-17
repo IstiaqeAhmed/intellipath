@@ -1,0 +1,9 @@
+{% extends 'students/base.html' %}
+{% block content %}
+<div class="container mt-5 text-center">
+    <h1 class="text-warning">Payment Verification Pending...</h1>
+    <p>আপনার অ্যাকাউন্টটি বর্তমানে অ্যাডমিন রিভিউতে আছে।</p>
+    <p>আপনার পাঠানো টাকা এবং TrxID যাচাই করার পর অ্যাকাউন্ট চালু করা হবে।</p>
+    <a href="{% url 'logout' %}" class="btn btn-danger">Logout</a>
+</div>
+{% endblock %}

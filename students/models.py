@@ -1,4 +1,6 @@
 from django.db import models
+# এই লাইনটি ফাইলের একদম ওপরে থাকতে হবে
+from django.contrib.auth.models import User
 
 # আমাদের কোর্সের জন্য একটি টেবিল
 
@@ -28,3 +30,21 @@ class QuizResult(models.Model):
 
     def __str__(self):
         return f"{self.user.username} - {self.topic}"
+    # ==========================================
+# 👇 এখান থেকে নতুন কোড (Registration & Payment)
+# ==========================================
+
+
+class StudentProfile(models.Model):
+    # প্রতিটি ইউজারের সাথে এটি লিংক করা থাকবে
+    user = models.OneToOneField(User, on_delete=models.CASCADE)
+
+    # রেজিস্ট্রেশন তথ্য
+    mobile_number = models.CharField(max_length=15)  # মোবাইল নম্বর (বিকাশ/নগদ)
+    transaction_id = models.CharField(max_length=50)  # পেমেন্ট TrxID
+
+    # পেমেন্ট স্ট্যাটাস (ডিফল্টভাবে False থাকবে, অ্যাডমিন True করলে লগইন হবে)
+    is_approved = models.BooleanField(default=False)
+
+    def __str__(self):
+        return f"{self.user.username} - {self.mobile_number}"

@@ -1,0 +1,18 @@
+{% extends 'students/base.html' %}
+{% block content %}
+<div class="container mt-5">
+    <h2>Student Registration</h2>
+    <div class="alert alert-info">
+        ⚠️ Registration Fee: 500 BDT <br>
+        Send Money to: 01xxxxxxxxx (bKash/Nagad) <br>
+        Enter the TrxID below.
+    </div>
+   <form method="POST" action="{% url 'register' %}">
+        {% csrf_token %}
+        {{ form.as_p }}
+        <button type="submit" class="btn btn-primary">Submit & Register</button>
+    </form>
+    <br>
+    <a href="{% url 'login' %}">Already have an account? Login here.</a>
+</div>
+{% endblock %}
