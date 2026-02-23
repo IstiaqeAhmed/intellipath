@@ -1,0 +1,58 @@
+{% extends 'students/base.html' %}
+
+{% block content %}
+<div class="container mt-5 mb-5 text-center">
+    <div class="card shadow border-0 mx-auto" style="max-width: 700px;">
+        <div class="card-body p-4">
+            
+            {% if percentage >= 80 %}
+                <h1 class="display-1">🏆</h1>
+                <h2 class="text-success fw-bold">অভিনন্দন! (Excellent)</h2>
+            {% elif percentage >= 50 %}
+                <h1 class="display-1">👏</h1>
+                <h2 class="text-primary fw-bold">ভালো করেছেন! (Good Job)</h2>
+            {% else %}
+                <h1 class="display-1">📖</h1>
+                <h2 class="text-warning fw-bold">আরও পড়তে হবে (Keep Trying)</h2>
+            {% endif %}
+
+            <h3 class="my-3">আপনার স্কোর: <span class="fw-bold">{{ score }} / {{ total }}</span></h3>
+            
+            <div class="progress mb-4" style="height: 20px;">
+                <div class="progress-bar {% if percentage >= 80 %}bg-success{% elif percentage >= 50 %}bg-primary{% else %}bg-warning{% endif %}" 
+                     role="progressbar" style="width: {{ percentage }}%;">
+                    {{ percentage }}%
+                </div>
+            </div>
+
+            <hr>
+
+            <h4 class="mt-4 mb-3 text-start fw-bold">বিস্তারিত ফলাফল (Detailed Review):</h4>
+            <div class="text-start mb-4">
+                {% for item in detailed_results %}
+                    <div class="mb-3 p-3 border rounded shadow-sm {% if item.is_correct %}border-success bg-light{% else %}border-danger bg-light{% endif %}">
+                        <p class="fw-bold mb-2">{{ forloop.counter }}. {{ item.question }}</p>
+                        
+                        {% if item.is_correct %}
+                            <p class="text-success mb-0"><i class="fas fa-check-circle"></i> <strong>আপনার উত্তর:</strong> {{ item.selected }} (সঠিক)</p>
+                        {% else %}
+                            <p class="text-danger mb-1"><i class="fas fa-times-circle"></i> <strong>আপনার উত্তর:</strong> {{ item.selected|default:"উত্তর দেননি" }}</p>
+                            <p class="text-success mb-0"><i class="fas fa-check-double"></i> <strong>সঠিক উত্তর:</strong> {{ item.correct }}</p>
+                        {% endif %}
+                    </div>
+                {% endfor %}
+            </div>
+
+            <div class="d-grid gap-2">
+                <a href="{% url 'course_content_detail' content.course.id content.id %}" class="btn btn-outline-dark">
+                    ⬅ ক্লাসে ফিরে যান
+                </a>
+                <a href="{% url 'dashboard' %}" class="btn btn-primary">
+                    🏠 ড্যাশবোর্ড
+                </a>
+            </div>
+
+        </div>
+    </div>
+</div>
+{% endblock %}

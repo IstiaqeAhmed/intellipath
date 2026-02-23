@@ -4,3 +4,4 @@ __pycache__/
 intellipath/config.py
 api key.txt
 *.env
+media/

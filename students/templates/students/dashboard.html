@@ -1,134 +1,383 @@
-<!DOCTYPE html>
-<html lang="bn">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IntelliPath - Student Dashboard</title>
+{% extends 'students/base.html' %}
+
+{% block content %}
+<style>
+    @import url('https://fonts.googleapis.com/css2?family=Orbitron:wght@500;700;900&family=Hind+Siliguri:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&display=swap');
+
+    :root {
+        --neon-blue: #00f3ff;
+        --neon-purple: #bc13fe;
+        --neon-pink: #ff0055;
+        --neon-yellow: #ffd700;
+        --dark-bg: #0a0e17;
+        --card-bg: rgba(13, 20, 36, 0.85); 
+    }
+
+    /* 🎯 100% Readable Fonts */
+    .text-readable {
+        font-family: 'Poppins', 'Hind Siliguri', sans-serif !important;
+        text-shadow: none !important; 
+        letter-spacing: 0.3px;
+    }
+    .text-pure-white { color: #ffffff !important; }
+    .text-silver { color: #cbd5e1 !important; }
+
+    /* 🌟 Holographic Hero Banner */
+    .hero-banner {
+        background: linear-gradient(135deg, #100624, #1b305c);
+        border-radius: 24px; position: relative; overflow: hidden;
+        border: 1px solid rgba(0, 243, 255, 0.3); box-shadow: 0 10px 30px rgba(0, 243, 255, 0.1);
+    }
+    .hero-banner::before {
+        content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%;
+        background: conic-gradient(transparent, rgba(0, 243, 255, 0.5), transparent 30%);
+        animation: rotate-hologram 10s linear infinite; opacity: 0.3; mix-blend-mode: screen;
+    }
+    @keyframes rotate-hologram { 100% { transform: rotate(360deg); } }
+
+    /* 🧊 Neon Bento Cards */
+    .bento-card {
+        background: var(--card-bg); backdrop-filter: blur(24px); -webkit-backdrop-filter: blur(24px);
+        border: 1px solid rgba(0, 243, 255, 0.15); border-radius: 24px;
+        box-shadow: 0 10px 25px rgba(0,0,0,0.6); transition: 0.3s ease-in-out;
+    }
+    .bento-card:hover {
+        transform: translateY(-6px); border-color: var(--neon-blue);
+        box-shadow: 0 15px 35px rgba(0, 243, 255, 0.15);
+    }
+
+    /* 🚀 Glowing Buttons */
+    .btn-neon-primary {
+        background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+        color: white; font-weight: 700; border-radius: 50px; border: none;
+        box-shadow: 0 5px 15px rgba(0, 243, 255, 0.3); transition: 0.3s;
+    }
+    .btn-neon-primary:hover { transform: translateY(-2px); box-shadow: 0 8px 25px var(--neon-blue); color: white; }
+
+    .btn-neon-outline {
+        background: rgba(0, 243, 255, 0.05); color: var(--neon-blue); border: 1px solid var(--neon-blue);
+        font-weight: 700; border-radius: 50px; transition: 0.3s; letter-spacing: 0.5px;
+    }
+    .btn-neon-outline:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 15px var(--neon-blue); }
+
+    /* 🎨 Cyber Progress Bar */
+    .progress-track { background: rgba(255,255,255,0.08); border-radius: 50px; height: 8px; border: 1px solid rgba(255,255,255,0.05); }
+    .progress-fill { background: linear-gradient(90deg, var(--neon-blue), var(--neon-purple)); border-radius: 50px; height: 100%; box-shadow: 0 0 10px var(--neon-blue);}
+
+    /* 🤖 AI Chat Bubbles */
+    .ai-chat-bubble { background: rgba(0, 243, 255, 0.1); border: 1px solid rgba(0, 243, 255, 0.3); color: #fff; border-radius: 16px 16px 16px 0; font-family: 'Hind Siliguri', sans-serif; }
+    .user-chat-bubble { background: rgba(188, 19, 254, 0.1); border: 1px solid rgba(188, 19, 254, 0.3); color: #fff; border-radius: 16px 16px 0 16px; font-family: 'Hind Siliguri', sans-serif; }
+
+    /* 🎯 AI Mentor Fullscreen Fix */
+    .ai-fullscreen {
+        position: fixed !important; top: 0 !important; left: 0 !important; width: 100vw !important; height: 100vh !important;
+        z-index: 10000 !important; margin: 0 !important; border-radius: 0 !important; background: var(--dark-bg) !important;
+        display: flex !important; flex-direction: column !important;
+    }
+    .ai-fullscreen .card-body { flex-grow: 1 !important; height: calc(100vh - 120px) !important; overflow: hidden !important; display: flex !important; flex-direction: column !important; }
+    .ai-fullscreen #ai-chat-box { flex-grow: 1 !important; height: 100% !important; max-height: none !important; padding: 30px !important; }
+</style>
+
+<div class="container mt-4 mb-5">
     
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-
-    <style>
-        body { background-color: #f4f6f9; }
-        .ai-card { border: 2px solid #6F42C1; background-color: #f3e5f5; }
-        .next-step-card { border-left: 5px solid #4A90E2; background-color: white; }
-    </style>
-</head>
-<body>
-
-    <nav class="navbar navbar-expand-lg navbar-dark bg-primary shadow-sm">
-        <div class="container">
-            <a class="navbar-brand fw-bold" href="{% url 'home' %}">
-                <i class="fas fa-brain me-2"></i>IntelliPath
-            </a>
-
-            <div class="ms-auto me-3">
-                 <a href="{% url 'quiz' %}" class="btn btn-warning btn-sm fw-bold text-dark">
-                    <i class="fas fa-puzzle-piece me-1"></i> কুইজ দিন 🚀
-                 </a>
-            </div>
-            <div class="d-flex text-white align-items-center">
-                {% if user.is_authenticated %}
-                    <span class="me-3">স্বাগতম, <strong>{{ user.username }}</strong></span>
-                    
-                    <form action="{% url 'logout' %}" method="post" class="d-inline">
-                        {% csrf_token %}
-                        <button type="submit" class="btn btn-light btn-sm rounded-pill text-primary fw-bold">Logout</button>
-                    </form>
+    <div class="hero-banner p-4 mb-4 d-flex flex-column flex-md-row justify-content-between align-items-center z-index-1">
+        <div class="d-flex align-items-center mb-3 mb-md-0" style="z-index: 2;">
+            <div class="position-relative">
+                {% if user.studentprofile.profile_picture %}
+                    <img src="{{ user.studentprofile.profile_picture.url }}" alt="DP" class="rounded-circle" style="width: 80px; height: 80px; object-fit: cover; border: 2px solid var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue);">
                 {% else %}
-                    <a href="{% url 'login' %}" class="btn btn-light btn-sm rounded-pill text-primary fw-bold">Login</a>
+                    <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center fw-bolder" style="width: 80px; height: 80px; font-size: 35px; border: 2px solid var(--neon-purple); box-shadow: 0 0 15px var(--neon-purple);">
+                        {{ user.username|make_list|first|upper }}
+                    </div>
                 {% endif %}
+                <span class="position-absolute bottom-0 end-0 rounded-circle" style="width: 20px; height: 20px; background: #00ff88; box-shadow: 0 0 10px #00ff88; border: 2px solid #0a0e17;"></span>
+            </div>
+            
+            <div class="ms-4 text-white">
+                <p class="mb-0 fw-bold text-uppercase" style="letter-spacing: 2px; color: var(--neon-blue); font-size: 0.85rem; font-family: 'Orbitron';">Future Ops Dashboard</p>
+                <h2 class="mb-0 fw-bolder text-readable text-pure-white">হ্যালো, <span style="color: var(--neon-blue);">{{ user.first_name|default:user.username }}</span>!</h2>
+                <p class="mb-0 mt-1 fs-6 text-silver text-readable">মিশন: জ্ঞান অর্জন। স্ট্যাটাস: <span style="color: #00ff88; font-weight: 600;">অ্যাক্টিভ</span> 🚀</p>
             </div>
         </div>
-    </nav>
-    <div class="container mt-4">
-        <div class="row">
-            
-            <div class="col-lg-8">
-                
-                <div class="card p-4 mb-4 shadow-sm next-step-card">
-                    <span class="badge bg-primary w-25 mb-2">AI প্রস্তাবিত</span>
-                    <h3 class="fw-bold">পাইথন বেসিকস: লেকচার ২.৩</h3>
-                    <p class="text-muted">আপনার গত কুইজের পারফরম্যান্স অনুযায়ী AI আপনাকে এটি রিভিশন দিতে বলছে।</p>
-                    <button class="btn btn-success btn-lg mt-2"><i class="fas fa-play me-2"></i>শেখা শুরু করুন</button>
-                </div>
-
-                <h5 class="text-secondary mb-3">আপনার কোর্সসমূহ</h5>
-                <div class="row">
-                    
-                    {% for course in courses %}
-                    <div class="col-md-6">
-                        <div class="card p-3 border-0 shadow-sm mb-3 h-100">
-                            <h6 class="fw-bold">{{ course.title }}</h6>
-                            
-                            <div class="progress mt-2" style="height: 5px;">
-                                <div class="progress-bar 
-                                    {% if course.progress < 30 %} bg-danger 
-                                    {% elif course.progress < 70 %} bg-warning 
-                                    {% else %} bg-success {% endif %}" 
-                                    style="width: {{ course.progress }}%">
-                                </div>
-                            </div>
-                            
-                            <small class="text-muted mt-1 d-block">{{ course.progress }}% সম্পন্ন</small>
-                            <p class="small text-muted mt-2 mb-0">{{ course.description }}</p>
-                            <a href="{% url 'course_content' course.id %}" class="btn btn-primary btn-sm mt-3 w-100">Start Learning</a>
-                        </div>
-                    </div>
-                    {% empty %}
-                    <p class="text-center text-muted">এখনো কোনো কোর্স যোগ করা হয়নি।</p>
-                    {% endfor %}
-
-                </div>
+        
+        <div class="d-flex align-items-center gap-4" style="z-index: 2;">
+            <div class="text-center">
+                <div class="fs-4 fw-bolder text-info" style="font-family: 'Orbitron';">{{ total_xp }}</div>
+                <div class="text-silver small fw-bold">TOTAL XP</div>
             </div>
-
-            <div class="col-lg-4">
-                
-                <div class="card p-3 mb-4 shadow-sm ai-card">
-                    <h5 class="fw-bold text-primary"><i class="fas fa-robot me-2"></i>AI টিউটর</h5>
-                    
-                    {% if ai_response %}
-                        <div class="alert alert-success mt-2 p-2 small border-0 bg-white">
-                            <strong>AI:</strong> {{ ai_response | linebreaks }}
-                        </div>
-                    {% else %}
-                        <p class="small text-muted">আপনার পড়াশোনা বিষয়ক কোনো প্রশ্ন আছে কি?</p>
-                    {% endif %}
-
-                    <form method="post">
-                        {% csrf_token %}
-                        <div class="input-group">
-                            <input type="text" name="question" class="form-control" placeholder="প্রশ্ন লিখুন..." required>
-                            <button type="submit" class="btn btn-primary"><i class="fas fa-paper-plane"></i></button>
-                        </div>
-                    </form>
-                </div>
-
-                <div class="card p-3 shadow-sm border-0 text-center">
-                    <h6 class="text-muted">আপনার পারফরম্যান্স</h6>
-                    <h1 class="display-4 fw-bold text-success">৮২%</h1>
-                    <p class="badge bg-success bg-opacity-10 text-success p-2">খুব ভালো হচ্ছে!</p>
-                </div>
-
-                <div class="card p-3 shadow-sm border-0 mt-4">
-    <h6 class="fw-bold text-secondary">আপনার কুইজ ইতিহাস</h6>
-    <ul class="list-group list-group-flush small">
-        {% for quiz in quiz_history %}
-            <li class="list-group-item d-flex justify-content-between align-items-center">
-                {{ quiz.topic }}
-                <span class="badge bg-info rounded-pill">{{ quiz.date|date:"d M" }}</span>
-            </li>
-        {% empty %}
-            <li class="list-group-item text-muted">কোনো কুইজ রেকর্ড নেই</li>
-        {% endfor %}
-    </ul>
-</div>
-
+            <div class="text-center" style="border-left: 1px solid rgba(255,255,255,0.2); padding-left: 15px;">
+                <div class="fs-4 fw-bolder" style="font-family: 'Orbitron'; color: var(--neon-yellow);">#{{ user_rank }}</div>
+                <div class="text-silver small fw-bold">RANK</div>
             </div>
+            <a href="{% url 'profile' %}" class="btn btn-neon-outline rounded-pill px-4 py-2 fw-bold text-readable ms-2">
+                <i class="fas fa-user-cog me-2"></i> সেটিংস
+            </a>
         </div>
     </div>
 
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
-</body>
-</html>
+    <div class="row g-4">
+        <div class="col-xl-8">
+            <div class="d-flex align-items-center mb-4">
+                <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 50px; height: 50px; background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-blue); box-shadow: 0 0 15px var(--neon-blue);">
+                    <i class="fas fa-layer-group fa-lg" style="color: var(--neon-blue);"></i>
+                </div>
+                <h4 class="mb-0 fw-bolder text-pure-white text-readable">অ্যাক্টিভ মডিউল (কোর্স)</h4>
+            </div>
+            
+            {% if user_courses %}
+                <div class="row g-4">
+                    {% for item in user_courses %}
+                    <div class="col-md-6">
+                        <div class="card bento-card h-100 p-2">
+                            <div class="position-relative overflow-hidden rounded-4 mb-3" style="border: 1px solid rgba(255,255,255,0.1);">
+                                {% if item.course.thumbnail %}
+                                    <img src="{{ item.course.thumbnail.url }}" class="w-100" alt="{{ item.course.title }}" style="aspect-ratio: 16/9; object-fit: cover; filter: brightness(0.9);">
+                                {% else %}
+                                    <div class="d-flex flex-column align-items-center justify-content-center text-center" style="width: 100%; aspect-ratio: 16/9; background: linear-gradient(45deg, #091221, #13274F);">
+                                        <i class="fas fa-microchip fa-3x mb-3" style="color: var(--neon-blue);"></i>
+                                        <h6 class="fw-bold px-3 text-pure-white text-readable">{{ item.course.title }}</h6>
+                                    </div>
+                                {% endif %}
+                                <span class="position-absolute top-0 end-0 bg-dark text-white fw-bold rounded-pill px-3 py-1 m-2" style="font-size: 0.75rem; border: 1px solid #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.5);">
+                                    <i class="fas fa-bolt text-warning"></i> PRO
+                                </span>
+                            </div>
+                            
+                            <div class="card-body p-3 d-flex flex-column">
+                                <h5 class="fw-bolder mb-2 text-pure-white text-readable">{{ item.course.title }}</h5>
+                                <p class="small text-silver mb-4 text-readable" style="line-height: 1.5;">{{ item.course.description|truncatewords:12 }}</p>
+                                
+                                <div class="mb-4">
+                                    <div class="d-flex justify-content-between align-items-center mb-2">
+                                        <span class="fw-semibold text-readable" style="color: var(--neon-blue); font-size:0.85rem;">প্রগ্রেস স্ট্যাটাস</span>
+                                        <span class="badge rounded-pill px-2 py-1 text-readable" style="background: rgba(0,243,255,0.15); border: 1px solid var(--neon-blue); color: #fff;">{{ item.progress }}%</span>
+                                    </div>
+                                    <div class="progress-track">
+                                        <div class="progress-fill" style="width: {{ item.progress }}%;"></div>
+                                    </div>
+                                </div>
+
+                                <div class="mt-auto pt-2">
+                                    {% if item.progress >= 100 %}
+                                        <div class="d-grid gap-2">
+                                            <a href="{% url 'course_certificate' item.course.id %}" class="btn py-2 fw-bold text-readable" style="background: linear-gradient(135deg, #FFD700, #FFA500); color: #000; border-radius: 50px;">
+                                                <i class="fas fa-award fa-lg me-2"></i> সার্টিফিকেট ক্লাইম
+                                            </a>
+                                            <a href="{% url 'course_content' item.course.id %}" class="btn btn-neon-outline py-2 text-readable">
+                                                <i class="fas fa-sync-alt me-1"></i> রিভিশন মোড
+                                            </a>
+                                        </div>
+                                    {% else %}
+                                        <a href="{% url 'course_content' item.course.id %}" class="btn btn-neon-primary w-100 py-2 fw-bold text-readable">
+                                            {% if item.progress > 0 %} <i class="fas fa-play me-2"></i> কন্টিনিউ করুন {% else %} <i class="fas fa-rocket me-2"></i> স্টার্ট করুন {% endif %}
+                                        </a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+            {% else %}
+                <div class="bento-card p-5 text-center d-flex flex-column align-items-center mb-4">
+                    <i class="fas fa-folder-minus fa-4x mb-3 text-silver opacity-50"></i>
+                    <h5 class="fw-bold text-pure-white text-readable">কোনো অ্যাক্টিভ মডিউল নেই</h5>
+                    <p class="text-silver text-readable">আপনার লার্নিং মিশন শুরু করতে নতুন কোর্সে এনরোল করুন।</p>
+                </div>
+            {% endif %}
+
+            <div class="row g-4 mt-2">
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-blue);">
+                            <i class="fas fa-satellite-dish" style="color: var(--neon-blue);"></i>
+                        </div>
+                        <h5 class="mb-0 fw-bolder text-pure-white text-readable">অ্যাক্টিভ এক্সাম</h5>
+                    </div>
+                    <div class="bento-card p-3">
+                        {% for exam in exams %}
+                        <div class="d-flex justify-content-between align-items-center p-2 mb-2 rounded" style="background: rgba(255,255,255,0.05); border-left: 3px solid var(--neon-blue);">
+                            <div>
+                                <h6 class="text-white fw-bold mb-0 text-readable">{{ exam.title }}</h6>
+                                <small class="text-info">Marks: {{ exam.total_marks }}</small>
+                            </div>
+                            <a href="{% url 'take_exam' exam.id %}" class="btn btn-sm btn-neon-outline rounded-pill px-3">Start</a>
+                        </div>
+                        {% empty %}
+                        <p class="text-silver small text-center my-3">কোনো এক্সাম রানিং নেই।</p>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <div class="col-md-6">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; background: rgba(188, 19, 254, 0.1); border: 1px solid var(--neon-purple);">
+                            <i class="fas fa-tasks" style="color: var(--neon-purple);"></i>
+                        </div>
+                        <h5 class="mb-0 fw-bolder text-pure-white text-readable">অ্যাসাইনমেন্ট</h5>
+                    </div>
+                    <div class="bento-card p-3">
+                        {% for assignment in assignments %}
+                        <div class="d-flex justify-content-between align-items-center p-2 mb-2 rounded" style="background: rgba(255,255,255,0.05); border-left: 3px solid var(--neon-purple);">
+                            <div>
+                                <h6 class="text-white fw-bold mb-0 text-readable">{{ assignment.title }}</h6>
+                                <small class="text-danger"><i class="fas fa-clock"></i> {{ assignment.deadline|date:"d M" }}</small>
+                            </div>
+                            <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-sm rounded-pill text-white px-3" style="border: 1px solid var(--neon-purple);">Submit</a>
+                        </div>
+                        {% empty %}
+                        <p class="text-silver small text-center my-3">কোনো অ্যাসাইনমেন্ট নেই।</p>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+        </div>
+
+        <div class="col-xl-4 mt-5 mt-xl-0">
+            <div id="ai-tutor-card" class="card bento-card border-0 mb-4 p-1">
+                <div class="d-flex justify-content-between align-items-center p-3 border-bottom" style="border-color: rgba(0,243,255,0.15) !important;">
+                    <div class="d-flex align-items-center">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; background: rgba(188, 19, 254, 0.1); border: 1px solid var(--neon-purple); box-shadow: 0 0 10px rgba(188, 19, 254, 0.5);">
+                            <i class="fas fa-brain fa-lg" style="color: var(--neon-purple);"></i>
+                        </div>
+                        <div>
+                            <h6 class="fw-bolder mb-0 text-pure-white text-readable" style="color: var(--neon-purple) !important;">AI মেন্টর</h6>
+                            <small style="color: #00ff88; font-size: 0.75rem;">সিস্টেম অনলাইন</small>
+                        </div>
+                    </div>
+                    <button id="ai-fullscreen-btn" class="btn btn-sm btn-outline-info rounded-circle d-flex align-items-center justify-content-center" style="width: 35px; height: 35px;" title="Press 'f' to Fullscreen">
+                        <i class="fas fa-expand"></i>
+                    </button>
+                </div>
+                <div class="card-body p-3">
+                    <div id="ai-chat-box" class="mb-3 overflow-auto pe-2" style="height: 250px; display: none;"></div>
+                    <div class="input-group rounded-pill p-1" style="background: rgba(0,0,0,0.4); border: 1px solid rgba(188, 19, 254, 0.4);">
+                        <input type="text" id="ai-question" class="form-control border-0 bg-transparent text-pure-white px-3 text-readable" placeholder="প্রশ্ন টাইপ করুন..." style="box-shadow: none;">
+                        <button id="ask-ai-btn" class="btn rounded-circle m-1 d-flex align-items-center justify-content-center" style="width: 35px; height: 35px; background: var(--neon-purple); color: white; border: none;"><i class="fas fa-paper-plane"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card bento-card border-0 mb-4 p-1">
+                <div class="p-3 d-flex align-items-center border-bottom" style="border-color: rgba(255,215,0,0.2) !important;">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; background: rgba(255, 215, 0, 0.1); border: 1px solid #ffd700; box-shadow: 0 0 10px rgba(255,215,0,0.5);">
+                        <i class="fas fa-crown fa-lg" style="color: #ffd700;"></i>
+                    </div>
+                    <h6 class="fw-bolder mb-0 text-pure-white text-readable" style="color: #ffd700 !important;">এলিট র‍্যাঙ্কিং (Top XP)</h6>
+                </div>
+                <div class="card-body p-2">
+                    <div class="list-group list-group-flush" style="max-height: 350px; overflow-y: auto;">
+                        {% for data in leaderboard %}
+                            <div class="list-group-item bg-transparent border-0 d-flex align-items-center justify-content-between p-2 mb-2 rounded-3 {% if data.student == request.user %}style="background: rgba(0,243,255,0.08); border: 1px solid rgba(0,243,255,0.3);"{% endif %}">
+                                
+                                <div class="d-flex align-items-center">
+                                    <div class="d-flex justify-content-center align-items-center fw-bold fs-6 me-3 rounded-circle" 
+                                         style="width: 32px; height: 32px; font-family: 'Orbitron';
+                                         {% if forloop.counter == 1 %}background: #FFD700; color:#000; box-shadow: 0 0 10px #FFD700;
+                                         {% elif forloop.counter == 2 %}background: #E0E0E0; color:#000;
+                                         {% elif forloop.counter == 3 %}background: #CD7F32; color:#fff;
+                                         {% else %}background: rgba(255,255,255,0.1); color:#fff; border: 1px solid rgba(255,255,255,0.2);{% endif %}">
+                                        {% if forloop.counter == 1 %}<i class="fas fa-trophy" style="font-size:12px;"></i>
+                                        {% elif forloop.counter == 2 %}<i class="fas fa-medal" style="font-size:12px;"></i>
+                                        {% elif forloop.counter == 3 %}<i class="fas fa-award" style="font-size:12px;"></i>
+                                        {% else %}{{ forloop.counter }}
+                                        {% endif %}
+                                    </div>
+                                    
+                                    {% if data.student.studentprofile.profile_picture %}
+                                        <img src="{{ data.student.studentprofile.profile_picture.url }}" class="rounded-circle me-3" style="width: 38px; height: 38px; object-fit: cover; border: 1px solid rgba(255,255,255,0.3);">
+                                    {% else %}
+                                        <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center me-3 fw-bold" style="width: 38px; height: 38px; border: 1px solid rgba(255,255,255,0.3);">
+                                            {{ data.student.username|make_list|first|upper }}
+                                        </div>
+                                    {% endif %}
+                                    
+                                    <div>
+                                        <h6 class="mb-0 fw-bold text-pure-white text-readable" style="font-size:0.95rem;">
+                                            {% if data.student.first_name %}{{ data.student.first_name }}{% else %}{{ data.student.username }}{% endif %}
+                                        </h6>
+                                        {% if data.student == request.user %}<span class="badge" style="background: var(--neon-blue); color: #000; font-size: 0.65rem;">YOU</span>{% endif %}
+                                    </div>
+                                </div>
+                                <div class="text-end">
+                                    <span class="fw-bolder fs-5" style="color: var(--neon-blue); font-family: 'Orbitron';">{{ data.total }}</span>
+                                    <small class="text-silver d-block" style="font-size: 0.65rem; margin-top: -5px;">XP</small>
+                                </div>
+                            </div>
+                        {% empty %}
+                            <div class="text-center p-3 text-silver text-readable">নো ডাটা ফাউন্ড।</div>
+                        {% endfor %}
+                    </div>
+                </div>
+            </div>
+        </div> 
+    </div> 
+</div>
+
+<script>
+    const aiCard = document.getElementById('ai-tutor-card');
+    const fullscreenBtn = document.getElementById('ai-fullscreen-btn');
+    const questionInput = document.getElementById('ai-question');
+    const askBtn = document.getElementById('ask-ai-btn');
+
+   function toggleAiFullscreen() {
+        aiCard.classList.toggle('ai-fullscreen');
+        
+        if (aiCard.classList.contains('ai-fullscreen')) {
+            document.body.appendChild(aiCard); 
+            fullscreenBtn.innerHTML = '<i class="fas fa-compress"></i>';
+            document.body.style.overflow = 'hidden';
+            questionInput.focus();
+        } else {
+            const sidebar = document.querySelector('.col-xl-4');
+            if(sidebar) { sidebar.prepend(aiCard); }
+            fullscreenBtn.innerHTML = '<i class="fas fa-expand"></i>';
+            document.body.style.overflow = 'auto';
+        }
+    }
+    fullscreenBtn.addEventListener('click', toggleAiFullscreen);
+    questionInput.addEventListener('keypress', function(e) { if (e.key === 'Enter') { e.preventDefault(); askBtn.click(); } });
+    document.addEventListener('keydown', function(e) {
+        if ((e.key === 'f' || e.key === 'F') && document.activeElement !== questionInput) { e.preventDefault(); toggleAiFullscreen(); }
+        if (e.key === 'Escape' && aiCard.classList.contains('ai-fullscreen')) { e.preventDefault(); toggleAiFullscreen(); }
+    });
+
+    askBtn.addEventListener('click', function() {
+        const chatBox = document.getElementById('ai-chat-box');
+        const question = questionInput.value.trim();
+        const btn = this;
+        if (question === '') return;
+        
+        chatBox.style.display = 'block';
+        const userMsg = document.createElement('div');
+        userMsg.className = "d-flex justify-content-end mb-3";
+        userMsg.innerHTML = `<div class="user-chat-bubble p-3 shadow-sm ms-4 text-readable">${question}</div>`;
+        chatBox.appendChild(userMsg);
+        chatBox.scrollTop = chatBox.scrollHeight;
+        
+        questionInput.value = '';
+        btn.innerHTML = '<i class="fas fa-circle-notch fa-spin"></i>';
+        btn.disabled = true;
+
+        fetch("{% url 'ask_ai_tutor' %}", {
+            method: 'POST', headers: {'Content-Type': 'application/json', 'X-CSRFToken': '{{ csrf_token }}'},
+            body: JSON.stringify({ 'question': question })
+        }).then(response => response.json()).then(data => {
+            const aiMsg = document.createElement('div');
+            aiMsg.className = "d-flex justify-content-start mb-3";
+            let ans = data.answer ? data.answer.replace(/\n/g, '<br>').replace(/\*\*(.*?)\*\*/g, '<b>$1</b>') : data.error;
+            aiMsg.innerHTML = `
+                <div class="d-flex align-items-start w-100">
+                    <div class="rounded-circle d-flex align-items-center justify-content-center flex-shrink-0 me-2" style="width: 35px; height: 35px; background: rgba(0, 243, 255, 0.2); border: 1px solid var(--neon-blue);">
+                        <i class="fas fa-robot" style="color: var(--neon-blue); font-size: 14px;"></i>
+                    </div>
+                    <div class="ai-chat-bubble p-3 shadow-sm w-100 text-readable" style="line-height: 1.6;">${ans}</div>
+                </div>
+            `;
+            chatBox.appendChild(aiMsg);
+            aiMsg.scrollIntoView({ behavior: 'smooth', block: 'start' });
+        }).finally(() => { btn.innerHTML = '<i class="fas fa-paper-plane"></i>'; btn.disabled = false; });
+    });
+</script>
+{% endblock %}

@@ -1,0 +1,112 @@
+{% extends 'students/base.html' %}
+
+{% block content %}
+<style>
+    .exam-container { max-width: 850px; margin: 40px auto; }
+    .cyber-vault {
+        background: rgba(10, 15, 30, 0.85);
+        backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 243, 255, 0.2);
+        border-radius: 20px;
+        box-shadow: 0 0 40px rgba(0, 243, 255, 0.1);
+        padding: 40px;
+    }
+    .exam-header {
+        border-bottom: 2px dashed rgba(188, 19, 254, 0.3);
+        padding-bottom: 20px;
+        margin-bottom: 30px;
+    }
+    .cyber-box {
+        background: rgba(255, 255, 255, 0.03);
+        border-left: 3px solid var(--neon-blue);
+        border-radius: 10px;
+        padding: 20px;
+        margin-bottom: 20px;
+        transition: 0.3s;
+    }
+    .cyber-box:hover { background: rgba(0, 243, 255, 0.05); }
+    .border-purple { border-left-color: var(--neon-purple); }
+    
+    .cyber-radio { accent-color: var(--neon-blue); width: 18px; height: 18px; cursor: pointer; }
+    .cyber-label { color: #cbd5e1; cursor: pointer; margin-left: 10px; font-family: 'Poppins', sans-serif; }
+    
+    .cyber-file-input {
+        background: rgba(0, 243, 255, 0.05);
+        border: 1px dashed var(--neon-blue);
+        color: #fff; padding: 10px; border-radius: 10px; width: 100%;
+    }
+    .cyber-file-input::-webkit-file-upload-button {
+        background: var(--neon-blue); color: #000; border: none; padding: 8px 15px; border-radius: 5px; font-weight: bold; cursor: pointer;
+    }
+    
+    .btn-submit-exam {
+        background: linear-gradient(45deg, #00f3ff, #bc13fe);
+        border: none; color: white; font-weight: 800; font-size: 1.2rem;
+        padding: 15px; border-radius: 50px; width: 100%; letter-spacing: 2px;
+        text-transform: uppercase; transition: 0.4s; box-shadow: 0 10px 20px rgba(188, 19, 254, 0.3);
+    }
+    .btn-submit-exam:hover { transform: translateY(-3px); box-shadow: 0 15px 30px rgba(0, 243, 255, 0.5); color: white; }
+</style>
+
+<div class="container exam-container">
+    <div class="cyber-vault">
+        <div class="exam-header text-center">
+            <h2 class="text-white" style="font-family: 'Orbitron'; font-weight: 800; text-shadow: 0 0 15px var(--neon-blue);">
+                <i class="fas fa-laptop-code text-info me-2"></i> {{ exam.title }}
+            </h2>
+            <div class="d-flex justify-content-center gap-4 mt-3">
+                <span class="badge bg-dark border border-info text-info p-2"><i class="fas fa-star me-1"></i> Total Marks: {{ exam.total_marks }}</span>
+                <span class="badge bg-dark border border-warning text-warning p-2"><i class="fas fa-shield-alt me-1"></i> Pass Marks: {{ exam.pass_marks }}</span>
+            </div>
+            {% if exam.description %}
+                <p class="text-secondary mt-3 small"><i class="fas fa-info-circle"></i> {{ exam.description }}</p>
+            {% endif %}
+        </div>
+
+        <form method="POST" enctype="multipart/form-data">
+            {% csrf_token %}
+            
+            {% if exam.questions.all %}
+                <h4 class="text-info mb-4" style="font-family: 'Orbitron';"><i class="fas fa-list-ol me-2"></i> Part 1: MCQ (Multiple Choice)</h4>
+                {% for q in exam.questions.all %}
+                <div class="cyber-box">
+                    <p class="text-white fw-bold mb-3" style="font-size: 1.1rem;">{{ forloop.counter }}. {{ q.question_text }}</p>
+                    <div class="row g-2">
+                        <div class="col-md-6"><label class="d-flex align-items-center"><input type="radio" name="question_{{ q.id }}" value="A" class="cyber-radio" required> <span class="cyber-label">A) {{ q.option_a }}</span></label></div>
+                        <div class="col-md-6"><label class="d-flex align-items-center"><input type="radio" name="question_{{ q.id }}" value="B" class="cyber-radio" required> <span class="cyber-label">B) {{ q.option_b }}</span></label></div>
+                        <div class="col-md-6"><label class="d-flex align-items-center"><input type="radio" name="question_{{ q.id }}" value="C" class="cyber-radio" required> <span class="cyber-label">C) {{ q.option_c }}</span></label></div>
+                        <div class="col-md-6"><label class="d-flex align-items-center"><input type="radio" name="question_{{ q.id }}" value="D" class="cyber-radio" required> <span class="cyber-label">D) {{ q.option_d }}</span></label></div>
+                    </div>
+                </div>
+                {% endfor %}
+            {% endif %}
+
+            {% if exam.cq_questions.all %}
+                <h4 class="text-white mt-5 mb-4" style="font-family: 'Orbitron'; text-shadow: 0 0 10px var(--neon-purple);"><i class="fas fa-pen-nib me-2 text-primary"></i> Part 2: CQ (Written Section)</h4>
+                {% for cq in exam.cq_questions.all %}
+                <div class="cyber-box border-purple">
+                    <p class="text-info fw-bold mb-1"><i class="fas fa-book-open me-1"></i> উদ্দীপক:</p>
+                    <p class="text-silver fst-italic mb-3 p-3" style="background: rgba(0,0,0,0.3); border-radius: 8px;">{{ cq.stimulus }}</p>
+                    <ul class="text-white" style="list-style: none; padding-left: 0; line-height: 2;">
+                        <li><strong class="text-warning">ক (১):</strong> {{ cq.question_k }}</li>
+                        <li><strong class="text-warning">খ (২):</strong> {{ cq.question_kh }}</li>
+                        <li><strong class="text-warning">গ (৩):</strong> {{ cq.question_g }}</li>
+                        <li><strong class="text-warning">ঘ (৪):</strong> {{ cq.question_gh }}</li>
+                    </ul>
+                </div>
+                {% endfor %}
+                
+                <div class="mt-4 p-4" style="background: rgba(188, 19, 254, 0.05); border: 1px dashed var(--neon-purple); border-radius: 15px;">
+                    <label class="text-white fw-bold mb-2"><i class="fas fa-cloud-upload-alt text-info me-2"></i> আপনার লেখা খাতার ছবি বা PDF আপলোড করুন:</label>
+                    <input type="file" name="cq_answer_file" class="cyber-file-input" accept=".pdf,.jpg,.jpeg,.png" required>
+                    <small class="text-secondary d-block mt-2">* সর্বোচ্চ 10MB সাইজের ফাইল সাপোর্ট করবে।</small>
+                </div>
+            {% endif %}
+
+            <button type="submit" class="btn-submit-exam mt-5">
+                <i class="fas fa-satellite-dish me-2"></i> সাবমিট করুন
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}

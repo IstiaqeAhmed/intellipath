@@ -1,0 +1,148 @@
+{% extends 'students/base.html' %}
+
+{% block content %}
+<style>
+    /* 🌌 প্রোফাইল কন্টেইনার */
+    .profile-container {
+        min-height: 85vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        padding: 40px 20px;
+    }
+
+    /* 🛡️ Cyber Identity Card */
+    .profile-vault-card {
+        background: rgba(13, 20, 36, 0.9);
+        backdrop-filter: blur(25px);
+        border: 1px solid rgba(0, 243, 255, 0.3);
+        border-radius: 30px;
+        width: 100%;
+        max-width: 600px;
+        padding: 40px;
+        box-shadow: 0 0 50px rgba(0, 243, 255, 0.15);
+        position: relative;
+        overflow: hidden;
+    }
+
+    /* প্রোফাইল ইমেজের গ্লোয়িং বর্ডার */
+    .profile-img-wrapper {
+        width: 150px;
+        height: 150px;
+        margin: 0 auto 25px;
+        position: relative;
+        padding: 5px;
+        background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+        border-radius: 50%;
+        box-shadow: 0 0 25px rgba(0, 243, 255, 0.5);
+    }
+    .profile-img-wrapper img {
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+        border-radius: 50%;
+        border: 4px solid var(--dark-bg);
+    }
+
+    /* ⌨️ প্রোফাইল ডিটেইলস রো */
+    .info-row {
+        background: rgba(255, 255, 255, 0.03);
+        border: 1px solid rgba(255, 255, 255, 0.08);
+        border-radius: 15px;
+        padding: 15px 20px;
+        margin-bottom: 15px;
+        display: flex;
+        align-items: center;
+        transition: 0.3s;
+    }
+    .info-row:hover {
+        background: rgba(0, 243, 255, 0.05);
+        border-color: var(--neon-blue);
+        transform: translateX(5px);
+    }
+    .info-label {
+        font-family: 'Orbitron';
+        color: var(--neon-blue);
+        font-size: 0.75rem;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        width: 100px;
+    }
+    .info-value {
+        color: #fff;
+        font-weight: 600;
+        font-family: 'Poppins', 'Hind Siliguri', sans-serif;
+    }
+
+    /* 🚀 Action Buttons */
+    .btn-edit-profile {
+        background: transparent;
+        color: var(--neon-blue);
+        border: 2px solid var(--neon-blue);
+        border-radius: 50px;
+        padding: 12px 30px;
+        font-weight: 800;
+        text-transform: uppercase;
+        letter-spacing: 1px;
+        transition: 0.4s;
+        display: inline-block;
+        text-decoration: none;
+        width: 100%;
+        text-align: center;
+    }
+    .btn-edit-profile:hover {
+        background: var(--neon-blue);
+        color: #000;
+        box-shadow: 0 0 30px var(--neon-blue);
+    }
+
+    .btn-back-dash {
+        color: rgba(255, 255, 255, 0.6);
+        text-decoration: none;
+        font-size: 0.9rem;
+        transition: 0.3s;
+    }
+    .btn-back-dash:hover { color: var(--neon-purple); }
+</style>
+
+<div class="profile-container">
+    <div class="profile-vault-card text-center">
+        <div class="profile-img-wrapper">
+            {% if user.studentprofile.profile_picture %}
+                <img src="{{ user.studentprofile.profile_picture.url }}" alt="User Identity">
+            {% else %}
+                <div class="bg-dark text-white rounded-circle d-flex align-items-center justify-content-center h-100" style="font-size: 60px;">
+                    <i class="fas fa-user-astronaut"></i>
+                </div>
+            {% endif %}
+        </div>
+
+        <h2 class="fw-bolder text-white mb-1" style="font-family: 'Hind Siliguri';">{{ user.first_name }} {{ user.last_name }}</h2>
+        <p class="text-info opacity-75 mb-4" style="font-family: 'Orbitron'; font-size: 0.9rem;">@{{ user.username }}</p>
+
+        <div class="text-start mb-5">
+            <div class="info-row">
+                <span class="info-label">Full Name</span>
+                <span class="info-value">{{ user.get_full_name|default:user.username }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Email</span>
+                <span class="info-value">{{ user.email }}</span>
+            </div>
+            <div class="info-row">
+                <span class="info-label">Access</span>
+                <span class="info-value text-success">Verified Student ⚡</span>
+            </div>
+        </div>
+
+        <div class="d-grid gap-3">
+            <a href="#" class="btn btn-edit-profile">
+                <i class="fas fa-user-edit me-2"></i> প্রোফাইল এডিট করুন (Update Node)
+            </a>
+            <a href="{% url 'dashboard' %}" class="btn-back-dash mt-2">
+                <i class="fas fa-arrow-left me-1"></i> ড্যাশবোর্ডে ফিরে যান
+            </a>
+        </div>
+    </div>
+</div>
+{% endblock %}

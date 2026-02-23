@@ -1,0 +1,186 @@
+{% extends 'students/base.html' %}
+{% load static %}
+
+{% block content %}
+<style>
+    /* 🌟 Hero Section Styles */
+    .hero-section {
+        padding: 100px 0;
+        position: relative;
+        overflow: hidden;
+    }
+    /* অ্যানিমেটেড ব্যাকগ্রাউন্ড পার্টিকেল */
+    .hero-section::before {
+        content: ''; position: absolute; top: 0; left: 0; width: 100%; height: 100%;
+        background: radial-gradient(circle at 20% 50%, rgba(0, 243, 255, 0.15) 0%, transparent 50%),
+                    radial-gradient(circle at 80% 30%, rgba(188, 19, 254, 0.15) 0%, transparent 50%);
+        filter: blur(60px); z-index: -1; animation: pulse-glow 10s ease-in-out infinite alternate;
+    }
+    @keyframes pulse-glow { 0% { opacity: 0.5; } 100% { opacity: 1; } }
+
+    .hero-title {
+        font-family: 'Orbitron', sans-serif;
+        font-weight: 900;
+        font-size: 3.5rem;
+        line-height: 1.2;
+        background: linear-gradient(to right, #fff, var(--neon-blue));
+        -webkit-background-clip: text;
+        -webkit-text-fill-color: transparent;
+        text-shadow: 0 0 20px rgba(0, 243, 255, 0.5);
+    }
+    .hero-subtitle {
+        font-family: 'Poppins', sans-serif; color: #cbd5e1; font-size: 1.2rem; margin-bottom: 2rem;
+    }
+
+    /* 🛸 Hero Hologram Image Animation */
+    .cyber-brain-container { position: relative; height: 400px; display: flex; justify-content: center; align-items: center; }
+    .cyber-brain {
+        font-size: 15rem;
+        background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+        -webkit-background-clip: text; -webkit-text-fill-color: transparent;
+        filter: drop-shadow(0 0 50px var(--neon-blue));
+        animation: float-brain 4s ease-in-out infinite;
+    }
+    .orbit-ring {
+        position: absolute; border-radius: 50%; border: 2px solid rgba(0, 243, 255, 0.3);
+        box-shadow: 0 0 20px rgba(0, 243, 255, 0.2), inset 0 0 20px rgba(0, 243, 255, 0.2);
+    }
+    .ring-1 { width: 300px; height: 300px; animation: spin-right 10s linear infinite; }
+    .ring-2 { width: 400px; height: 400px; border-color: rgba(188, 19, 254, 0.3); animation: spin-left 15s linear infinite; }
+    @keyframes float-brain { 0%, 100% { transform: translateY(0); } 50% { transform: translateY(-20px); } }
+    @keyframes spin-right { 100% { transform: rotate(360deg); } }
+    @keyframes spin-left { 100% { transform: rotate(-360deg); } }
+
+    /* 🧊 Glass Feature Cards */
+    .feature-section { padding: 80px 0; position: relative; }
+    .feature-card {
+        background: rgba(13, 20, 36, 0.6); backdrop-filter: blur(20px);
+        border: 1px solid rgba(0, 243, 255, 0.1); border-radius: 24px;
+        padding: 40px 30px; text-align: center; transition: 0.4s; height: 100%;
+        box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+    }
+    .feature-card:hover {
+        transform: translateY(-10px); border-color: var(--neon-blue);
+        box-shadow: 0 20px 50px rgba(0, 243, 255, 0.2); background: rgba(13, 20, 36, 0.8);
+    }
+    .feature-icon-box {
+        width: 80px; height: 80px; margin: 0 auto 25px;
+        background: rgba(0, 243, 255, 0.1); border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        border: 2px solid var(--neon-blue); box-shadow: 0 0 20px var(--neon-blue);
+        transition: 0.4s;
+    }
+    .feature-card:hover .feature-icon-box { transform: rotateY(180deg); background: var(--neon-blue); }
+    .feature-card:hover .feature-icon-box i { color: #000 !important; }
+    .feature-title { font-family: 'Orbitron', sans-serif; color: #fff; font-weight: 700; margin-bottom: 15px; }
+    .feature-text { color: #cbd5e1; font-family: 'Poppins', sans-serif; }
+
+    /* 🚀 Glowing Buttons */
+    .btn-neon-hero {
+        background: linear-gradient(135deg, var(--neon-blue), var(--neon-purple));
+        color: white; font-weight: 700; border-radius: 50px; padding: 15px 40px; font-size: 1.1rem;
+        box-shadow: 0 0 25px rgba(0, 243, 255, 0.5); transition: 0.3s; border: none;
+    }
+    .btn-neon-hero:hover { transform: translateY(-3px) scale(1.05); box-shadow: 0 0 50px var(--neon-blue); color: white; }
+    .btn-neon-outline-hero {
+        background: transparent; color: var(--neon-blue); border: 2px solid var(--neon-blue);
+        font-weight: 700; border-radius: 50px; padding: 15px 40px; font-size: 1.1rem; transition: 0.3s;
+    }
+    .btn-neon-outline-hero:hover { background: var(--neon-blue); color: #000; box-shadow: 0 0 30px var(--neon-blue); }
+    
+    /* CTA Banner */
+    .cta-banner {
+        background: linear-gradient(135deg, rgba(0,243,255,0.1), rgba(188,19,254,0.1));
+        border-top: 1px solid var(--neon-blue); border-bottom: 1px solid var(--neon-purple);
+        padding: 80px 0; text-align: center; position: relative; overflow: hidden;
+    }
+    .cta-banner::before { content: ''; position: absolute; width: 200px; height: 200px; background: var(--neon-blue); filter: blur(150px); top: -100px; left: -100px; opacity: 0.3; }
+    .cta-banner::after { content: ''; position: absolute; width: 200px; height: 200px; background: var(--neon-purple); filter: blur(150px); bottom: -100px; right: -100px; opacity: 0.3; }
+</style>
+
+<section class="hero-section d-flex align-items-center">
+    <div class="container">
+        <div class="row align-items-center gy-5">
+            <div class="col-lg-6 order-2 order-lg-1">
+                <span class="badge rounded-pill px-3 py-2 mb-3 fw-bold" style="background: rgba(255,215,0,0.1); border: 1px solid #ffd700; color: #ffd700; box-shadow: 0 0 15px rgba(255,215,0,0.3);">
+                    <i class="fas fa-rocket me-2"></i> M.Engg. Final Project 2026
+                </span>
+                <h1 class="hero-title mb-4">ভবিষ্যতের প্রযুক্তিতে <br>আপনাকে স্বাগতম</h1>
+                <p class="hero-subtitle">IntelliPath হলো একটি নেক্সট-জেন AI লার্নিং প্ল্যাটফর্ম। সাইবার-মেন্টর এবং রিয়েল-টাইম কুইজের মাধ্যমে আপনার শেখার অভিজ্ঞতাকে নিয়ে যান এক নতুন উচ্চতায়।</p>
+                <div class="d-flex flex-wrap gap-3">
+                    {% if user.is_authenticated %}
+                        <a href="{% url 'dashboard' %}" class="btn btn-neon-hero">
+                            <i class="fas fa-chart-line me-2"></i> ড্যাশবোর্ডে যান
+                        </a>
+                    {% else %}
+                        <a href="{% url 'register' %}" class="btn btn-neon-hero">
+                            <i class="fas fa-bolt me-2"></i> আজই শুরু করুন
+                        </a>
+                        <a href="{% url 'login' %}" class="btn btn-neon-outline-hero">
+                            <i class="fas fa-sign-in-alt me-2"></i> লগইন
+                        </a>
+                    {% endif %}
+                </div>
+            </div>
+            <div class="col-lg-6 order-1 order-lg-2 mb-5 mb-lg-0">
+                <div class="cyber-brain-container">
+                    <div class="orbit-ring ring-1"></div>
+                    <div class="orbit-ring ring-2"></div>
+                    <i class="fas fa-brain cyber-brain"></i>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="feature-section">
+    <div class="container">
+        <div class="text-center mb-5">
+            <h2 class="fw-bolder text-white" style="font-family: 'Orbitron'; font-size: 2.5rem; text-shadow: 0 0 15px var(--neon-blue);">কেন IntelliPath সেরা?</h2>
+            <p class="text-silver" style="font-size: 1.1rem;">আমরা ব্যবহার করি বিশ্বের সবচেয়ে অ্যাডভান্সড লার্নিং টেকনোলজি</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-box">
+                        <i class="fas fa-robot fa-3x" style="color: var(--neon-blue);"></i>
+                    </div>
+                    <h4 class="feature-title">AI সাইবার-মেন্টর</h4>
+                    <p class="feature-text">কোর্সের যেকোনো টপিক নিয়ে কনফিউশন? আমাদের ২৪/৭ অ্যাক্টিভ AI মেন্টর আপনাকে রিয়েল-টাইমে গাইড করবে।</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-box" style="border-color: #00ff88; box-shadow: 0 0 20px #00ff88;">
+                        <i class="fas fa-microchip fa-3x" style="color: #00ff88;"></i>
+                    </div>
+                    <h4 class="feature-title">ডাইনামিক কুইজ ইঞ্জিন</h4>
+                    <p class="feature-text">প্রতিটি লেসন শেষে AI জেনারেটেড অ্যাডাপ্টিভ কুইজের মাধ্যমে তাৎক্ষণিকভাবে নিজের মেধা যাচাই করুন।</p>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="feature-card">
+                    <div class="feature-icon-box" style="border-color: #ffd700; box-shadow: 0 0 20px #ffd700;">
+                        <i class="fas fa-award fa-3x" style="color: #ffd700;"></i>
+                    </div>
+                    <h4 class="feature-title">ভেরিফাইড সার্টিফিকেট</h4>
+                    <p class="feature-text">কোর্স ১০০% সাফল্যের সাথে শেষ করার পর আপনার অর্জনের স্বীকৃতিস্বরূপ ব্লকচেইন-ভেরিফাইড সার্টিফিকেট অর্জন করুন।</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="cta-banner">
+    <div class="container position-relative" style="z-index: 1;">
+        <h2 class="fw-bolder text-white mb-4" style="font-family: 'Orbitron'; font-size: 3rem; text-shadow: 0 0 20px var(--neon-purple);">আপনার লার্নিং মিশন শুরু করুন!</h2>
+        <p class="text-silver fs-5 mb-5">সিস্টেমে যোগ দিন এবং আপনার পছন্দের প্রিমিয়াম কোর্সে এনরোল করুন।</p>
+        {% if not user.is_authenticated %}
+            <a href="{% url 'register' %}" class="btn btn-neon-hero px-5 py-3" style="font-size: 1.3rem;">
+                <i class="fas fa-user-plus me-2"></i> জয়েন করুন (Sign Up)
+            </a>
+        {% endif %}
+    </div>
+</section>
+
+{% endblock %}

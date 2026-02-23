@@ -1,0 +1,286 @@
+{% extends 'students/base.html' %}
+{% load static %}
+
+{% block content %}
+<link href="https://fonts.googleapis.com/css2?family=Great+Vibes&display=swap" rel="stylesheet">
+
+<style>
+    .cert-page-wrapper {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        padding: 40px 20px;
+        min-height: 85vh;
+    }
+
+    /* 🖨️ Action Buttons (No Print) */
+    .cert-actions {
+        margin-bottom: 30px;
+        display: flex;
+        gap: 15px;
+    }
+    .btn-cyber-action {
+        background: rgba(13, 20, 36, 0.8);
+        border: 1px solid var(--neon-blue);
+        color: var(--neon-blue);
+        padding: 10px 25px;
+        border-radius: 8px;
+        font-family: 'Hind Siliguri', sans-serif;
+        font-weight: 600;
+        transition: 0.3s;
+        text-decoration: none;
+    }
+    .btn-cyber-action:hover {
+        background: var(--neon-blue);
+        color: #000;
+        box-shadow: 0 0 15px var(--neon-blue);
+    }
+    .btn-cyber-print {
+        background: rgba(0, 255, 136, 0.1);
+        border: 1px solid #00ff88;
+        color: #00ff88;
+    }
+    .btn-cyber-print:hover {
+        background: #00ff88;
+        color: #000;
+        box-shadow: 0 0 15px #00ff88;
+    }
+
+   /* 🌟 Cyber Certificate Frame - 2026 Minimalist Edition */
+    .cert-frame {
+        position: relative;
+        width: 100%;
+        max-width: 1050px;
+        padding: 50px;
+        background: #050914; 
+        border-radius: 20px;
+        box-shadow: 0 0 50px rgba(0, 243, 255, 0.1);
+        overflow: hidden;
+    }
+
+    /* 🌀 Glowing Holographic Rings */
+    .cert-rings {
+        position: absolute;
+        top: 50%; left: 50%;
+        transform: translate(-50%, -50%);
+        width: 100%; height: 100%;
+        pointer-events: none;
+        z-index: 0;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .ring {
+        position: absolute;
+        border-radius: 50%;
+        border: 2px solid transparent;
+    }
+    .ring-1 { width: 500px; height: 500px; border-color: rgba(0, 243, 255, 0.5); box-shadow: 0 0 30px rgba(0, 243, 255, 0.2), inset 0 0 30px rgba(0, 243, 255, 0.2); animation: spin 25s linear infinite; }
+    .ring-2 { width: 650px; height: 650px; border-color: rgba(188, 19, 254, 0.4); box-shadow: 0 0 30px rgba(188, 19, 254, 0.2); border-style: dashed; animation: spin-reverse 35s linear infinite; }
+    .ring-3 { width: 850px; height: 850px; border-color: rgba(0, 243, 255, 0.1); animation: spin 45s linear infinite; }
+
+    @keyframes spin { 100% { transform: rotate(360deg); } }
+    @keyframes spin-reverse { 100% { transform: rotate(-360deg); } }
+
+   /* 📜 Inner Glassmorphism */
+    .cert-inner {
+        position: relative;
+        z-index: 1;
+        border: 1px solid rgba(255, 255, 255, 0.05);
+        border-radius: 15px;
+        padding: 60px 50px;
+        text-align: center;
+        background: rgba(10, 15, 30, 0.6); 
+        backdrop-filter: blur(10px);
+        box-shadow: inset 0 0 30px rgba(0, 243, 255, 0.05);
+    }
+
+    /* 🖋️ Typography */
+    .cert-header { font-family: 'Poppins', sans-serif; color: #fff; font-size: 1.4rem; font-weight: 500; margin-bottom: 20px; letter-spacing: 1px; }
+    .cert-title { font-family: 'Orbitron', sans-serif; color: var(--neon-blue); font-size: 2.8rem; font-weight: 900; text-shadow: 0 0 20px var(--neon-blue); margin-bottom: 25px; letter-spacing: 2px; }
+    .cert-text { font-family: 'Poppins', sans-serif; color: #cbd5e1; font-size: 1.1rem; margin-bottom: 15px; }
+    
+    .cert-name-wrapper {
+        margin: 20px auto;
+        padding: 15px 0;
+        border-top: 1px solid rgba(255, 255, 255, 0.3);
+        border-bottom: 1px solid rgba(255, 255, 255, 0.3);
+        display: inline-block;
+        min-width: 60%;
+    }
+    .cert-name { font-family: 'Orbitron', sans-serif; color: var(--neon-yellow); font-size: 2.6rem; font-weight: 800; text-shadow: 0 0 20px rgba(255, 215, 0, 0.6); letter-spacing: 2px; margin: 0; text-transform: uppercase; }
+    
+    .cert-course { font-family: 'Orbitron', sans-serif; color: var(--neon-blue); font-size: 2rem; font-weight: bold; text-shadow: 0 0 15px rgba(0, 243, 255, 0.6); margin: 20px 0; }
+    .cert-desc { font-family: 'Poppins', sans-serif; color: #94a3b8; font-size: 0.95rem; max-width: 85%; margin: 0 auto 50px; line-height: 1.6; }
+
+    /* 🏅 Digital Seal & Signature */
+    .cert-footer { display: flex; justify-content: space-between; align-items: flex-end; margin-top: 20px; }
+    
+    .cyber-seal {
+        width: 130px; height: 130px;
+        border-radius: 50%;
+        border: 2px solid var(--neon-purple);
+        box-shadow: 0 0 25px var(--neon-purple), inset 0 0 15px var(--neon-purple);
+        display: flex; flex-direction: column; justify-content: center; align-items: center;
+        background: rgba(10, 14, 23, 0.9);
+        position: relative;
+    }
+    .cyber-seal::before {
+        content: ''; position: absolute; width: 150px; height: 150px;
+        border-radius: 50%; border: 1px dashed var(--neon-blue);
+        animation: spin 10s linear infinite;
+    }
+    .cyber-seal i { font-size: 2.8rem; color: #fff; margin-bottom: 5px; filter: drop-shadow(0 0 10px #fff); }
+    .cyber-seal span { font-family: 'Orbitron'; font-size: 0.75rem; color: var(--neon-purple); font-weight: bold; letter-spacing: 1px; }
+
+    .signature-box { text-align: center; }
+    .signature-text { 
+        font-family: 'Great Vibes', cursive; 
+        font-size: 2.8rem; 
+        color: var(--neon-blue); 
+        text-shadow: 0 0 10px rgba(0, 243, 255, 0.5); 
+        line-height: 1; 
+        border-bottom: 1px solid rgba(255, 255, 255, 0.5); 
+        padding-bottom: 5px; 
+        margin-bottom: 5px; 
+        padding-left: 20px;
+        padding-right: 20px;
+    }
+
+   /* 🖨️ Ultimate Edge-to-Edge Print Settings (No Cut-offs) */
+    @media print {
+        @page { 
+            size: A4 landscape; 
+            margin: 0 !important; 
+        }
+        body, html { 
+            background-color: #050914 !important; 
+            -webkit-print-color-adjust: exact !important; 
+            print-color-adjust: exact !important; 
+            margin: 0 !important; 
+            padding: 0 !important;
+            width: 100% !important; 
+            height: 100% !important;
+        }
+        .no-print, nav, header, footer { display: none !important; }
+        
+        .cert-page-wrapper { 
+            position: absolute !important;
+            top: 0 !important;
+            left: 0 !important;
+            right: 0 !important;
+            bottom: 0 !important;
+            width: 297mm !important;
+            height: 210mm !important;
+            padding: 0 !important; 
+            margin: 0 !important; 
+            background: #050914 !important;
+            display: flex !important;
+            justify-content: center !important;
+            align-items: center !important;
+            overflow: hidden !important;
+        }
+        
+        .cert-frame { 
+            width: 100% !important; 
+            height: 100% !important; 
+            max-width: none !important; 
+            margin: 0 !important;
+            padding: 10mm !important; /* সাইডের গ্যাপ কমানো হয়েছে */
+            box-sizing: border-box !important;
+            background: #050914 !important;
+            border-radius: 0 !important;
+            box-shadow: none !important;
+            border: none !important; 
+            outline: none !important;
+        }
+        
+        .cert-inner {
+            height: 100% !important;
+            padding: 15px 30px !important; /* ভেতরের গ্যাপ কমানো হয়েছে */
+            border: 1px solid rgba(0, 243, 255, 0.15) !important;
+            background: rgba(5, 9, 20, 0.8) !important;
+            border-radius: 20px !important;
+            display: flex !important;
+            flex-direction: column !important;
+            justify-content: center !important;
+        }
+        
+        /* 📏 A4 পেপারে ফিট করার জন্য স্পেসিং ও ফন্ট সাইজ অপটিমাইজেশন */
+        .cert-header { margin-bottom: 10px !important; font-size: 1.2rem !important; }
+        .cert-title { margin-bottom: 10px !important; font-size: 2.2rem !important; }
+        .cert-text { margin-bottom: 5px !important; font-size: 0.95rem !important; }
+        
+        .cert-name-wrapper { margin: 10px auto !important; padding: 10px 0 !important; }
+        .cert-name { font-size: 2.2rem !important; }
+        
+        .cert-course { margin: 10px 0 !important; font-size: 1.8rem !important; }
+        .cert-desc { margin-bottom: 15px !important; font-size: 0.85rem !important; line-height: 1.4 !important; max-width: 90% !important; }
+
+        /* 🏅 ফুটার সিলমোহর এবং সিগনেচার স্পেসিং ফিক্স */
+        .cert-footer { margin-top: 10px !important; }
+        
+        .cyber-seal { width: 100px !important; height: 100px !important; }
+        .cyber-seal::before { width: 115px !important; height: 115px !important; }
+        .cyber-seal i { font-size: 2rem !important; }
+        .cyber-seal span { font-size: 0.65rem !important; }
+
+        .signature-text { font-size: 2.2rem !important; margin-bottom: 2px !important; }
+    }
+</style>
+
+<div class="cert-page-wrapper">
+    
+    <div class="cert-actions no-print">
+        <a href="{% url 'dashboard' %}" class="btn-cyber-action">
+            <i class="fas fa-arrow-left"></i> ড্যাশবোর্ডে ফিরে যান
+        </a>
+        <button onclick="window.print()" class="btn-cyber-action btn-cyber-print">
+            <i class="fas fa-print"></i> প্রিন্ট / PDF সেভ করুন
+        </button>
+    </div>
+
+    <div class="cert-frame">
+        <div class="cert-rings">
+            <div class="ring ring-1"></div>
+            <div class="ring ring-2"></div>
+            <div class="ring ring-3"></div>
+        </div>
+
+        <div class="cert-inner">
+            <div class="cert-header">
+                <i class="fas fa-graduation-cap me-2" style="color: #cbd5e1;"></i> IntelliPath Learning
+            </div>
+            
+            <div class="cert-title">CERTIFICATE OF COMPLETION</div>
+            
+            <div class="cert-text">This is to certify that</div>
+            
+            <div class="cert-name-wrapper">
+                <div class="cert-name">{{ request.user.first_name|default:request.user.username }} {{ request.user.last_name }}</div>
+            </div>
+            
+            <div class="cert-text">has successfully completed the course</div>
+            
+            <div class="cert-course">{{ course.title|upper }}</div>
+            
+            <div class="cert-desc">
+                This certificate recognizes the dedication, hard work, and successful completion of all course materials, assignments, and AI-powered adaptive quizzes required for this module.
+            </div>
+
+            <div class="cert-footer">
+                <div class="cyber-seal">
+                    <i class="fas fa-user-graduate"></i>
+                    <span>VERIFIED</span>
+                </div>
+
+                <div class="signature-box">
+                    <div class="signature-text">Istiaqe Ahmed Khan</div>
+                    <div class="cert-text" style="font-size: 0.85rem; letter-spacing: 2px;">AUTHORIZER / INSTRUCTOR</div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+</div>
+{% endblock %}
