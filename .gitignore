@@ -5,3 +5,4 @@ intellipath/config.py
 api key.txt
 *.env
 media/
+.env

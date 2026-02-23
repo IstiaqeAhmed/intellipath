@@ -1,5 +1,7 @@
-import os
 from pathlib import Path
+import os
+from dotenv import load_dotenv
+load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
@@ -82,5 +84,5 @@ MEDIA_URL = '/media/'
 MEDIA_ROOT = os.path.join(BASE_DIR, 'media')
 X_FRAME_OPTIONS = 'SAMEORIGIN'
 
-# Google Gemini API Key
-GEMINI_API_KEY = "AIzaSyDwlFseSSanidoiooTLV_375MgUhWpq-90"
+# Google Gemini API Key (Now 100% Secured!)
+GEMINI_API_KEY = os.environ.get("GEMINI_API_KEY")
