@@ -136,12 +136,38 @@
         </div>
 
         <div class="d-grid gap-3">
-            <a href="#" class="btn btn-edit-profile">
-                <i class="fas fa-user-edit me-2"></i> প্রোফাইল এডিট করুন (Update Node)
-            </a>
+            <a href="#" class="btn btn-edit-profile" data-bs-toggle="modal" data-bs-target="#editProfileModal">
+    <i class="fas fa-user-edit me-2"></i> প্রোফাইল এডিট করুন (Update Node)
+</a>
             <a href="{% url 'dashboard' %}" class="btn-back-dash mt-2">
                 <i class="fas fa-arrow-left me-1"></i> ড্যাশবোর্ডে ফিরে যান
             </a>
+        </div>
+    </div>
+</div>
+<div class="modal fade" id="editProfileModal" tabindex="-1" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content" style="background: rgba(13, 20, 36, 0.95); border: 1px solid var(--neon-blue); border-radius: 20px;">
+            <div class="modal-header" style="border-bottom: 1px solid rgba(0, 243, 255, 0.2);">
+                <h5 class="modal-title text-white" style="font-family: 'Orbitron';"><i class="fas fa-user-edit text-info me-2"></i> Update Profile Node</h5>
+                <button type="button" class="btn-close btn-close-white" data-bs-dismiss="modal" aria-label="Close"></button>
+            </div>
+            <div class="modal-body text-start">
+                
+                <form method="POST" enctype="multipart/form-data">
+                    {% csrf_token %}
+                    <div class="text-white custom-form-style">
+                        {{ u_form.as_p }}
+                        {{ p_form.as_p }}
+                    </div>
+                    <div class="d-grid mt-4">
+                        <button type="submit" class="btn btn-edit-profile">
+                            <i class="fas fa-save me-2"></i> Save Changes
+                        </button>
+                    </div>
+                </form>
+
+            </div>
         </div>
     </div>
 </div>
