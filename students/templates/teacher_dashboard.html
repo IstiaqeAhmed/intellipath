@@ -1,0 +1,49 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Teacher Dashboard - IntelliPath</title>
+    <style>
+        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; background-color: #f4f7f6; padding: 30px; }
+        h2 { color: #2c3e50; text-align: center; margin-bottom: 30px; }
+        table { width: 100%; border-collapse: collapse; background: white; box-shadow: 0 4px 8px rgba(0,0,0,0.1); border-radius: 10px; overflow: hidden; }
+        th, td { padding: 15px; text-align: center; border-bottom: 1px solid #ddd; }
+        th { background-color: #34495e; color: white; text-transform: uppercase; letter-spacing: 1px; }
+        tr:hover { background-color: #f1f1f1; }
+        .btn-predict { padding: 8px 15px; background-color: #27ae60; color: white; text-decoration: none; border-radius: 5px; font-weight: bold; transition: 0.3s; }
+        .btn-predict:hover { background-color: #2ecc71; box-shadow: 0 2px 5px rgba(0,0,0,0.2); }
+    </style>
+</head>
+<body>
+
+    <h2>👨‍🏫 Teacher Dashboard (Student Analytics)</h2>
+    
+    <table>
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Student Name</th>
+                <th>Exam Score</th>
+                <th>Assignment Score</th>
+                <th>Quiz Score</th>
+                <th>AI Prediction</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for student in students %}
+            <tr>
+                <td>{{ student.id }}</td>
+                <td><b>{{ student.username }}</b></td>
+                <td>{{ student.exam_score }}</td>
+                <td>{{ student.assign_score }}</td>
+                <td>{{ student.quiz_score }}</td>
+                <td>
+                    <a href="{% url 'predict_student' student.id %}" class="btn-predict">🧠 AI Predict</a>
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+
+</body>
+</html>

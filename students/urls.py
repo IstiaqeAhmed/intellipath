@@ -1,6 +1,10 @@
 from django.urls import path
 from . import views
 from django.contrib.auth import views as auth_views
+from django.contrib import admin
+from django.urls import path
+# teacher_dashboard যোগ করা হলো
+from students.views import predict_student, teacher_dashboard
 
 urlpatterns = [
     # ড্যাশবোর্ড এবং হোমপেজ
@@ -38,4 +42,8 @@ urlpatterns = [
     path('exam/<int:exam_id>/', views.take_exam, name='take_exam'),
     path('assignment/<int:assignment_id>/',
          views.submit_assignment, name='submit_assignment'),
+    path('admin/', admin.site.urls),
+    path('predict/<int:user_id>/', predict_student, name='predict_student'),
+    # এই নতুন লাইনটি যোগ করুন
+    path('teacher-dashboard/', teacher_dashboard, name='teacher_dashboard'),
 ]

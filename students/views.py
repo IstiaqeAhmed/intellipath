@@ -1,3 +1,7 @@
+import os
+from .models import ExamResult, AssignmentSubmission, QuizResult
+from django.shortcuts import render, get_object_or_404
+import pickle
 import json
 import random
 import google.generativeai as genai
@@ -298,7 +302,7 @@ def ask_ai_tutor(request):
 
         except Exception as e:
             print(f"AI Tutor Error: {e}")
-            return JsonResponse({'error': 'দুঃখিত, কোনো একটি সমস্যা হয়েছে। আবার চেষ্টা করুন।'}, status=500)
+            return JsonResponse({'error': 'AI মেন্টর এই মুহূর্তে অনেক বেশি রিকোয়েস্ট পাচ্ছে। অনুগ্রহ করে ১ মিনিট পর আবার প্রশ্ন করুন।'}, status=500)
 
     return JsonResponse({'error': 'Invalid request'}, status=400)
 
@@ -423,3 +427,81 @@ def submit_assignment(request, assignment_id):
             return redirect('dashboard')
 
     return render(request, 'students/submit_assignment.html', {'assignment': assignment})
+
+
+# আমাদের ট্রেইন করা ML মডেলটি লোড করা
+MODEL_PATH = os.path.join(settings.BASE_DIR, 'student_predictor_model.pkl')
+with open(MODEL_PATH, 'rb') as f:
+    ml_model = pickle.load(f)
+
+
+def predict_student(request, user_id):
+    # স্টুডেন্টকে ডাটাবেস থেকে খুঁজে বের করা
+    student = get_object_or_404(User, id=user_id)
+
+    # স্টুডেন্টের মার্কসগুলো সংগ্রহ করা
+    exam_result = ExamResult.objects.filter(student=student).first()
+    exam_score = exam_result.score if exam_result else 0
+
+    assign_sub = AssignmentSubmission.objects.filter(student=student).first()
+    assign_score = assign_sub.marks_obtained if assign_sub else 0
+
+    quiz_result = QuizResult.objects.filter(user=student).first()
+    quiz_score = 0
+    if quiz_result and '/' in quiz_result.score:
+        try:
+            quiz_score = int(quiz_result.score.split('/')[0])
+        except ValueError:
+            pass
+
+    # মডেল দিয়ে প্রেডিক্ট করা (পাস নাকি ফেল)
+    prediction = ml_model.predict([[exam_score, assign_score, quiz_score]])[0]
+
+    if prediction == 1:
+        status = "Pass (সফলভাবে কোর্স শেষ করবে) ✅"
+        color = "green"
+    else:
+        status = "Dropout (ঝরে পড়ার সম্ভাবনা আছে) ⚠️"
+        color = "red"
+
+    context = {
+        'student': student,
+        'exam_score': exam_score,
+        'assign_score': assign_score,
+        'quiz_score': quiz_score,
+        'status': status,
+        'color': color
+    }
+
+    return render(request, 'prediction_result.html', context)
+
+
+def teacher_dashboard(request):
+    from django.contrib.auth.models import User
+    from .models import ExamResult, AssignmentSubmission, QuizResult
+
+    # ১. মাত্র ৪টি রিকোয়েস্টে সব ডেটা নিয়ে আসা
+    students = User.objects.filter(is_superuser=False)
+
+    # ২. পাইথন ডিকশনারি (Dictionary) বানিয়ে মেমোরিতে ডেটা ম্যাপ করা (Super Fast!)
+    exams = {e.student_id: e for e in ExamResult.objects.all()}
+    assigns = {a.student_id: a for a in AssignmentSubmission.objects.all()}
+    quizzes = {q.user_id: q for q in QuizResult.objects.all()}
+
+    student_data = []
+
+    # ৩. ডাটাবেসে কোনো রিকোয়েস্ট না পাঠিয়ে মেমোরি থেকে ডেটা মিলিয়ে নেওয়া
+    for student in students:
+        exam = exams.get(student.id)
+        assign = assigns.get(student.id)
+        quiz = quizzes.get(student.id)
+
+        student_data.append({
+            'id': student.id,
+            'username': student.username,
+            'exam_score': exam.score if exam else 0,
+            'assign_score': assign.marks_obtained if assign else 0,
+            'quiz_score': quiz.score if quiz else '0',
+        })
+
+    return render(request, 'teacher_dashboard.html', {'students': student_data})
