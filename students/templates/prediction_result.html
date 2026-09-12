@@ -24,6 +24,15 @@
         <hr>
         <p class="result">{{ status }}</p>
         <br><a href="{% url 'teacher_dashboard' %}" style="text-decoration:none; color:blue;">🔙 Back to Dashboard</a>
+        <hr>
+        <p class="result">{{ status }}</p>
+        
+        <!-- এই স্মার্ট ব্যাক বাটনটি যোগ করুন -->
+        <div style="margin-top: 20px;">
+            <a href="javascript:history.back()" style="text-decoration:none; background-color: #34495e; color: white; padding: 10px 20px; border-radius: 5px; font-weight: bold; font-size: 14px;">
+                🔙 আগের পেজে ফিরে যান
+            </a>
+        </div>
     </div>
 
 </body>
