@@ -1,3 +1,4 @@
+from django.shortcuts import get_object_or_404, redirect
 import os
 from .models import ExamResult, AssignmentSubmission, QuizResult
 from django.shortcuts import render, get_object_or_404
@@ -19,7 +20,7 @@ from django.http import JsonResponse
 from intellipath.config import GOOGLE_API_KEY
 from .forms import RegistrationForm, UserUpdateForm, ProfileUpdateForm
 from .models import Course, CourseContent, StudentProgress, QuizResult, StudentProfile
-from .models import Exam, ExamQuestion, ExamResult, Assignment, AssignmentSubmission, CreativeQuestion, ExamWrittenSubmission
+from .models import Exam, ExamQuestion, ExamResult, Assignment, Quiz, QuizQuestion, ManualQuizSubmission, AssignmentSubmission, CreativeQuestion, ExamWrittenSubmission
 
 # --- AI Setup ---
 genai.configure(api_key=GOOGLE_API_KEY)
@@ -50,6 +51,7 @@ def register(request):
 # ==========================================
 @login_required
 @login_required
+@login_required
 def dashboard(request):
     if not hasattr(request.user, 'studentprofile') or not request.user.studentprofile.is_approved:
         messages.warning(
@@ -58,13 +60,11 @@ def dashboard(request):
         return redirect('login')
 
     # ==========================================
-    # 📚 ১. কোর্সের প্রগ্রেস হিসাব (Fast Memory Mapping)
+    # 📚 ১. কোর্সের প্রগ্রেস হিসাব
     # ==========================================
     courses = Course.objects.prefetch_related('contents')
     user_progresses = StudentProgress.objects.filter(
         user=request.user, is_completed=True)
-
-    # কোন কোর্সের কয়টি কন্টেন্ট শেষ হয়েছে তা ডিকশনারিতে রাখা হলো
     completed_counts = {}
     for p in user_progresses:
         course_id = p.content.course_id
@@ -73,55 +73,45 @@ def dashboard(request):
     user_courses = []
     for course in courses:
         total_contents = course.contents.count()
-        if total_contents > 0:
-            completed_contents = completed_counts.get(course.id, 0)
-            progress = int((completed_contents / total_contents) * 100)
-        else:
-            progress = 0
+        progress = int((completed_counts.get(course.id, 0) /
+                       total_contents) * 100) if total_contents > 0 else 0
         user_courses.append({'course': course, 'progress': progress})
 
     # ==========================================
-    # 🏆 ২. গ্লোবাল লিডারবোর্ড ও মোট মার্কস (100x Faster!)
+    # 🏆 ২. গ্লোবাল লিডারবোর্ড ও মোট মার্কস
     # ==========================================
     all_students = User.objects.filter(
         studentprofile__is_approved=True).select_related('studentprofile')
 
-    # মাত্র ৪টি রিকোয়েস্টে পুরো ক্লাউড ডাটাবেস থেকে সবার ডেটা নিয়ে আসা
-    all_quizzes = QuizResult.objects.all()
     all_exams = ExamResult.objects.all()
     all_cqs = ExamWrittenSubmission.objects.filter(is_graded=True)
     all_assigns = AssignmentSubmission.objects.filter(is_graded=True)
+    # 🚀 নতুন ম্যানুয়াল কুইজ রেজাল্ট
+    all_manual_quizzes = ManualQuizSubmission.objects.all()
 
-    # পাইথন ডিকশনারিতে ডেটা সাজানো (সুপার ফাস্ট ক্যালকুলেশনের জন্য)
     student_scores = {std.id: 0 for std in all_students}
 
-    for q in all_quizzes:
-        if q.user_id in student_scores:
-            try:
-                student_scores[q.user_id] += int(q.score.split(' ')[0])
-            except:
-                pass
-
+    # এক্সাম, অ্যাসাইনমেন্ট এবং অফিসিয়াল কুইজের মার্কস যোগ করা (AI প্র্যাকটিস কুইজ বাদ)
     for e in all_exams:
         if e.student_id in student_scores:
             student_scores[e.student_id] += e.score
-
     for c in all_cqs:
         if c.student_id in student_scores:
             student_scores[c.student_id] += c.marks_obtained
-
     for a in all_assigns:
         if a.student_id in student_scores:
             student_scores[a.student_id] += a.marks_obtained
+    for mq in all_manual_quizzes:
+        if mq.student_id in student_scores:
+            student_scores[mq.student_id] += mq.score_obtained
 
-    # লিডারবোর্ড তৈরি এবং সর্ট করা
     leaderboard_data = [{'student': std, 'total': student_scores[std.id]}
                         for std in all_students if student_scores[std.id] > 0]
     leaderboard = sorted(
         leaderboard_data, key=lambda x: x['total'], reverse=True)[:10]
 
-    # ইউজারের নিজের মোট মার্কস ও র‍্যাংক
     total_xp = student_scores.get(request.user.id, 0)
+    total_xp = int(round(float(total_xp)))
     user_rank = "-"
     for index, data in enumerate(leaderboard):
         if data['student'] == request.user:
@@ -129,18 +119,28 @@ def dashboard(request):
             break
 
     # ==========================================
-    # 🚀 ৩. অ্যাকটিভ এক্সাম এবং অ্যাসাইনমেন্ট
+    # 🚀 ৩. অ্যাকটিভ এক্সাম, অ্যাসাইনমেন্ট এবং কুইজ
     # ==========================================
     exams = Exam.objects.all().order_by('-created_at')
     assignments = Assignment.objects.all().order_by('-deadline')
+    quizzes = Quiz.objects.all().order_by('-created_at')
+
+    submitted_exams = list(ExamResult.objects.filter(
+        student=request.user).values_list('exam_id', flat=True))
+    submitted_cqs = list(ExamWrittenSubmission.objects.filter(
+        student=request.user).values_list('exam_id', flat=True))
+    submitted_exam_ids = submitted_exams + submitted_cqs
+    submitted_assignment_ids = list(AssignmentSubmission.objects.filter(
+        student=request.user).values_list('assignment_id', flat=True))
+    submitted_quiz_ids = list(ManualQuizSubmission.objects.filter(
+        # 🚀 কোন কুইজ দেওয়া হয়েছে তার লিস্ট
+        student=request.user).values_list('quiz_id', flat=True))
 
     context = {
-        'user_courses': user_courses,
-        'total_xp': total_xp,
-        'user_rank': user_rank,
-        'leaderboard': leaderboard,
-        'exams': exams,
-        'assignments': assignments,
+        'user_courses': user_courses, 'total_xp': total_xp, 'user_rank': user_rank,
+        'leaderboard': leaderboard, 'exams': exams, 'assignments': assignments, 'quizzes': quizzes,
+        'submitted_exam_ids': submitted_exam_ids, 'submitted_assignment_ids': submitted_assignment_ids,
+        'submitted_quiz_ids': submitted_quiz_ids,  # 🚀 ড্যাশবোর্ডে পাঠানো হলো
     }
     return render(request, 'students/dashboard.html', context)
 
@@ -478,53 +478,92 @@ def predict_student(request, user_id):
 
 def teacher_dashboard(request):
     from django.contrib.auth.models import User
-    from .models import ExamResult, AssignmentSubmission, QuizResult
+    # 🚀 QuizResult বাদ দিয়ে ManualQuizSubmission আনা হলো (স্টুডেন্ট ড্যাশবোর্ডের মতো)
+    from .models import ExamResult, ExamWrittenSubmission, AssignmentSubmission, ManualQuizSubmission
 
-    # ১. মাত্র ৪টি রিকোয়েস্টে সব ডেটা নিয়ে আসা
     students = User.objects.filter(is_superuser=False)
 
-    # ২. পাইথন ডিকশনারি (Dictionary) বানিয়ে মেমোরিতে ডেটা ম্যাপ করা (Super Fast!)
-    exams = {e.student_id: e for e in ExamResult.objects.all()}
-    assigns = {a.student_id: a for a in AssignmentSubmission.objects.all()}
-    # কুইজের মার্কসগুলো যোগ করে মেমোরিতে রাখা
-    quizzes = {}
-    for q in QuizResult.objects.all():
-        score = 0
-        try:
-            score_str = str(q.score).strip()
-            if '/' in score_str:
-                score = int(score_str.split('/')[0].strip())
-            else:
-                score = int(score_str.split()[0].strip())
-        except ValueError:
-            pass
-        quizzes[q.user_id] = quizzes.get(q.user_id, 0) + score
+    # ডিকশনারি তৈরি করে ফাস্ট ক্যালকুলেশনের জন্য ডেটা জিরো (0) করে রাখা হলো
+    student_scores = {std.id: {'exam': 0, 'assign': 0,
+                               'quiz': 0, 'total': 0} for std in students}
+
+    # ১. এক্সাম মার্কস (MCQ + CQ)
+    for e in ExamResult.objects.all():
+        if e.student_id in student_scores:
+            student_scores[e.student_id]['exam'] += e.score
+            student_scores[e.student_id]['total'] += e.score
+
+    for c in ExamWrittenSubmission.objects.filter(is_graded=True):
+        if c.student_id in student_scores:
+            student_scores[c.student_id]['exam'] += c.marks_obtained
+            student_scores[c.student_id]['total'] += c.marks_obtained
+
+    # ২. অ্যাসাইনমেন্ট মার্কস
+    for a in AssignmentSubmission.objects.filter(is_graded=True):
+        if a.student_id in student_scores:
+            student_scores[a.student_id]['assign'] += a.marks_obtained
+            student_scores[a.student_id]['total'] += a.marks_obtained
+
+    # ৩. অফিসিয়াল কুইজ মার্কস (AI কুইজ বাদ!)
+    for mq in ManualQuizSubmission.objects.all():
+        if mq.student_id in student_scores:
+            student_scores[mq.student_id]['quiz'] += mq.score_obtained
+            student_scores[mq.student_id]['total'] += mq.score_obtained
 
     student_data = []
 
-    # ৩. ডাটাবেসে কোনো রিকোয়েস্ট না পাঠিয়ে মেমোরি থেকে ডেটা মিলিয়ে নেওয়া
+    # ৪. ডাটাবেসে রিকোয়েস্ট না পাঠিয়ে মেমোরি থেকে ডেটা সাজানো
     for student in students:
-        exam = exams.get(student.id)
-        assign = assigns.get(student.id)
-        quiz = quizzes.get(student.id)
-
-        # ৩. ডাটাবেসে কোনো রিকোয়েস্ট না পাঠিয়ে মেমোরি থেকে ডেটা মিলিয়ে নেওয়া
-    for student in students:
-        exam = exams.get(student.id)
-        assign = assigns.get(student.id)
-
-        exam_val = exam.score if exam else 0
-        assign_val = assign.marks_obtained if assign else 0
-        quiz_val = quizzes.get(student.id, 0)
-        total_val = exam_val + assign_val + quiz_val  # তিনটি মার্কস যোগ করা হলো
-
+        # দশমিক (Float) এড়ানোর জন্য int(round()) ব্যবহার করা হয়েছে
         student_data.append({
             'id': student.id,
             'username': student.username,
-            'exam_score': exam_val,
-            'assign_score': assign_val,
-            'quiz_score': quiz_val,
-            'total_score': total_val,  # নতুন কলামের ডেটা
+            'exam_score': int(round(student_scores[student.id]['exam'])),
+            'assign_score': int(round(student_scores[student.id]['assign'])),
+            'quiz_score': int(round(student_scores[student.id]['quiz'])),
+            'total_score': int(round(student_scores[student.id]['total'])),
         })
 
+    # টোটাল স্কোরের ভিত্তিতে বড় থেকে ছোট সাজানো (যাতে টপাররা ওপরে থাকে)
+    student_data = sorted(
+        student_data, key=lambda x: x['total_score'], reverse=True)
+
     return render(request, 'teacher_dashboard.html', {'students': student_data})
+
+
+@login_required
+def take_manual_quiz(request, quiz_id):
+    quiz = get_object_or_404(Quiz, id=quiz_id)
+
+    # 🛑 চেক করা হচ্ছে স্টুডেন্ট আগেই কুইজ দিয়েছে কি না
+    if ManualQuizSubmission.objects.filter(student=request.user, quiz=quiz).exists():
+        messages.warning(
+            request, 'আপনি ইতোমধ্যে এই কুইজটি দিয়েছেন! একবারের বেশি দেওয়া যাবে না।')
+        return redirect('dashboard')
+
+    questions = QuizQuestion.objects.filter(quiz=quiz)
+
+    if request.method == 'POST':
+        correct_answers = 0
+        total_questions = questions.count()
+
+        for q in questions:
+            selected_option = request.POST.get(f'question_{q.id}')
+            if selected_option == q.correct_option:
+                correct_answers += 1
+
+        # 🎯 মার্কস কনভার্ট করা (যেমন: ২ টা প্রশ্নে সঠিক হলে এবং মোট মার্কস ১০ হলে (২/২)*১০ = ১০ পাবে)
+       # 🎯 মার্কস কনভার্ট করা
+    scaled_score = (correct_answers / total_questions) * \
+        quiz.total_marks if total_questions > 0 else 0
+
+    # 💾 রেজাল্ট ডাটাবেসে সেভ করা
+    ManualQuizSubmission.objects.create(
+        student=request.user, quiz=quiz, score_obtained=scaled_score)
+
+    messages.success(
+        request, f'🎉 কুইজ সম্পন্ন হয়েছে! আপনি {quiz.total_marks} এর মধ্যে {round(scaled_score, 1)} পেয়েছেন।')
+    return redirect('dashboard')
+
+    context = {'quiz': quiz, 'questions': questions}
+    return render(request, 'students/take_manual_quiz.html', context)

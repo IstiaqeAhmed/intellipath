@@ -1,0 +1,50 @@
+{% extends 'students/base.html' %}
+
+{% block content %}
+<style>
+    :root { --neon-green: #00ff88; --card-bg: rgba(13, 20, 36, 0.85); }
+    .bento-card { background: var(--card-bg); border: 1px solid rgba(0, 255, 136, 0.2); border-radius: 20px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); }
+    .option-label { display: block; padding: 15px; background: rgba(255,255,255,0.05); border-radius: 10px; cursor: pointer; transition: 0.3s; color: white; border: 1px solid transparent; }
+    .option-label:hover { background: rgba(0, 255, 136, 0.1); border-color: var(--neon-green); }
+    input[type="radio"]:checked + .option-label { background: rgba(0, 255, 136, 0.2); border-color: var(--neon-green); font-weight: bold; }
+    input[type="radio"] { display: none; }
+</style>
+
+<div class="container mt-5 mb-5" style="max-width: 800px;">
+    <h2 class="text-white text-center mb-4 fw-bolder" style="font-family: 'Orbitron'; color: var(--neon-green) !important;">
+        <i class="fas fa-brain"></i> {{ quiz.title }}
+    </h2>
+    
+    <form method="POST">
+        {% csrf_token %}
+        {% for q in questions %}
+        <div class="bento-card mb-4">
+            <h5 class="text-white mb-4 fw-bold" style="font-family: 'Hind Siliguri';">{{ forloop.counter }}. {{ q.question_text }}</h5>
+            <div class="row g-3">
+                <div class="col-md-6">
+                    <input type="radio" name="question_{{ q.id }}" id="q{{ q.id }}_a" value="A" required>
+                    <label class="option-label" for="q{{ q.id }}_a">A) {{ q.option_a }}</label>
+                </div>
+                <div class="col-md-6">
+                    <input type="radio" name="question_{{ q.id }}" id="q{{ q.id }}_b" value="B">
+                    <label class="option-label" for="q{{ q.id }}_b">B) {{ q.option_b }}</label>
+                </div>
+                <div class="col-md-6">
+                    <input type="radio" name="question_{{ q.id }}" id="q{{ q.id }}_c" value="C">
+                    <label class="option-label" for="q{{ q.id }}_c">C) {{ q.option_c }}</label>
+                </div>
+                <div class="col-md-6">
+                    <input type="radio" name="question_{{ q.id }}" id="q{{ q.id }}_d" value="D">
+                    <label class="option-label" for="q{{ q.id }}_d">D) {{ q.option_d }}</label>
+                </div>
+            </div>
+        </div>
+        {% endfor %}
+        <div class="text-center mt-4">
+            <button type="submit" class="btn px-5 py-3 fw-bold" style="background: var(--neon-green); color: black; border-radius: 50px; font-size: 1.1rem; box-shadow: 0 0 15px rgba(0,255,136,0.5);">
+                <i class="fas fa-paper-plane me-2"></i> কুইজ সাবমিট করুন
+            </button>
+        </div>
+    </form>
+</div>
+{% endblock %}

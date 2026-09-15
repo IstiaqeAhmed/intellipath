@@ -1,9 +1,11 @@
 from django.contrib import admin
-# নতুন বাটন ডিজাইনের জন্য এটি ইম্পোর্ট করা হয়েছে
+# নতুন বাটন ডিজাইনের জন্য এটি ইম্পোর্ট করা হয়েছে
 from django.utils.html import format_html
 from .models import Course, CourseContent, StudentProgress, StudentProfile, QuizResult
 # নতুন CQ এবং Written Submission মডেলগুলো ইম্পোর্ট করা হলো
 from .models import Exam, ExamQuestion, ExamResult, Assignment, AssignmentSubmission, CreativeQuestion, ExamWrittenSubmission
+# (Quiz, QuizQuestion যোগ করুন)
+from .models import Course, Exam, Assignment, Quiz, QuizQuestion
 
 # কোর্সের ভেতরেই যাতে কন্টেন্ট যোগ করা যায় তার ব্যবস্থা
 
@@ -14,6 +16,7 @@ class ContentInline(admin.TabularInline):
 
 
 class CourseAdmin(admin.ModelAdmin):
+    save_as = True  # 🪄 ম্যাজিক ট্রিক: কোর্স ক্লোন করার জন্য
     inlines = [ContentInline]
 
 
@@ -43,13 +46,12 @@ class StudentProfileAdmin(admin.ModelAdmin):
 
 admin.site.register(StudentProfile, StudentProfileAdmin)
 
+
 # ==========================================
 # 🚀 EXAM, MCQ, CQ & ASSIGNMENT ADMIN SECTION
 # ==========================================
 
 # MCQ Question Box
-
-
 class ExamQuestionInline(admin.StackedInline):
     model = ExamQuestion
     extra = 1
@@ -64,6 +66,7 @@ class CreativeQuestionInline(admin.StackedInline):
 
 @admin.register(Exam)
 class ExamAdmin(admin.ModelAdmin):
+    save_as = True  # 🪄 ম্যাজিক ট্রিক: এক্সাম ক্লোন করার জন্য
     list_display = ('title', 'course', 'total_marks')
     # এখানে MCQ এবং CQ দুই ধরনের প্রশ্ন দেওয়ার অপশন একসাথে অ্যাড করা হলো
     inlines = [ExamQuestionInline, CreativeQuestionInline]
@@ -88,6 +91,7 @@ class ExamWrittenSubmissionAdmin(admin.ModelAdmin):
 
 @admin.register(Assignment)
 class AssignmentAdmin(admin.ModelAdmin):
+    save_as = True  # 🪄 ম্যাজিক ট্রিক: অ্যাসাইনমেন্ট ক্লোন করার জন্য
     list_display = ('title', 'course', 'deadline', 'total_marks')
 
 # অ্যাসাইনমেন্টের খাতা দেখার জন্য
@@ -101,3 +105,19 @@ class AssignmentSubmissionAdmin(admin.ModelAdmin):
     list_editable = ('marks_obtained', 'is_graded')
     list_filter = ('is_graded',)
     search_fields = ('student__username', 'assignment__title')
+
+# ==========================================
+# 🎯 MANUAL QUIZ ADMIN SECTION
+# ==========================================
+
+
+class QuizQuestionInline(admin.StackedInline):
+    model = QuizQuestion
+    extra = 1
+
+
+@admin.register(Quiz)
+class QuizAdmin(admin.ModelAdmin):
+    save_as = True  # ম্যাজিক ট্রিক: কুইজ ক্লোন করার জন্য
+    list_display = ('title', 'course', 'total_marks')
+    inlines = [QuizQuestionInline]

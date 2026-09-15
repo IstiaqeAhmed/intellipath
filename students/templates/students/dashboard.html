@@ -187,6 +187,7 @@
             {% endif %}
 
             <div class="row g-4 mt-2">
+                <!-- 📝 এক্সাম সেকশন -->
                 <div class="col-md-6">
                     <div class="d-flex align-items-center mb-3">
                         <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; background: rgba(0, 243, 255, 0.1); border: 1px solid var(--neon-blue);">
@@ -201,7 +202,13 @@
                                 <h6 class="text-white fw-bold mb-0 text-readable">{{ exam.title }}</h6>
                                 <small class="text-info">Marks: {{ exam.total_marks }}</small>
                             </div>
-                            <a href="{% url 'take_exam' exam.id %}" class="btn btn-sm btn-neon-outline rounded-pill px-3">Start</a>
+                            {% if exam.id in submitted_exam_ids %}
+                                <span class="badge px-3 py-2 text-readable" style="background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid #2ecc71; border-radius: 50px;">
+                                    <i class="fas fa-check-circle me-1"></i> Completed
+                                </span>
+                            {% else %}
+                                <a href="{% url 'take_exam' exam.id %}" class="btn btn-sm btn-neon-outline rounded-pill px-3">Start</a>
+                            {% endif %}
                         </div>
                         {% empty %}
                         <p class="text-silver small text-center my-3">কোনো এক্সাম রানিং নেই।</p>
@@ -209,6 +216,7 @@
                     </div>
                 </div>
 
+                <!-- 📁 অ্যাসাইনমেন্ট সেকশন -->
                 <div class="col-md-6">
                     <div class="d-flex align-items-center mb-3">
                         <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; background: rgba(188, 19, 254, 0.1); border: 1px solid var(--neon-purple);">
@@ -223,11 +231,54 @@
                                 <h6 class="text-white fw-bold mb-0 text-readable">{{ assignment.title }}</h6>
                                 <small class="text-danger"><i class="fas fa-clock"></i> {{ assignment.deadline|date:"d M" }}</small>
                             </div>
-                            <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-sm rounded-pill text-white px-3" style="border: 1px solid var(--neon-purple);">Submit</a>
+                            {% if assignment.id in submitted_assignment_ids %}
+                                <span class="badge px-3 py-2 text-readable" style="background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid #2ecc71; border-radius: 50px;">
+                                    <i class="fas fa-check-circle me-1"></i> Submitted
+                                </span>
+                            {% else %}
+                                <a href="{% url 'submit_assignment' assignment.id %}" class="btn btn-sm btn-neon-outline rounded-pill px-3" style="border-color: var(--neon-purple); color: var(--neon-purple);">Submit</a>
+                            {% endif %}
                         </div>
                         {% empty %}
                         <p class="text-silver small text-center my-3">কোনো অ্যাসাইনমেন্ট নেই।</p>
                         {% endfor %}
+                    </div>
+                </div>
+            </div>
+
+            <!-- ========================================== -->
+            <!-- 🧠 অ্যাকটিভ কুইজ সেকশন -->
+            <!-- ========================================== -->
+            <div class="row mt-4">
+                <div class="col-md-12">
+                    <div class="d-flex align-items-center mb-3">
+                        <div class="rounded-circle d-flex align-items-center justify-content-center me-3" style="width: 45px; height: 45px; background: rgba(0, 255, 136, 0.1); border: 1px solid #00ff88;">
+                            <i class="fas fa-brain" style="color: #00ff88;"></i>
+                        </div>
+                        <h5 class="mb-0 fw-bolder text-pure-white text-readable">অ্যাক্টিভ কুইজ (অফিসিয়াল)</h5>
+                    </div>
+                    <div class="bento-card p-3">
+                        <div class="row g-3">
+                            {% for quiz in quizzes %}
+                            <div class="col-md-6">
+                                <div class="d-flex justify-content-between align-items-center p-2 rounded" style="background: rgba(255,255,255,0.05); border-left: 3px solid #00ff88;">
+                                    <div>
+                                        <h6 class="text-white fw-bold mb-0 text-readable">{{ quiz.title }}</h6>
+                                        <small style="color: #00ff88;">Marks: {{ quiz.total_marks }}</small>
+                                    </div>
+                                    {% if quiz.id in submitted_quiz_ids %}
+                                        <span class="badge px-3 py-2 text-readable" style="background: rgba(46, 204, 113, 0.1); color: #2ecc71; border: 1px solid #2ecc71; border-radius: 50px;">
+                                            <i class="fas fa-check-circle me-1"></i> Completed
+                                        </span>
+                                    {% else %}
+                                        <a href="{% url 'take_manual_quiz' quiz.id %}" class="btn btn-sm btn-neon-outline rounded-pill px-3" style="border-color: #00ff88; color: #00ff88;">Start</a>
+                                    {% endif %}
+                                </div>
+                            </div>
+                            {% empty %}
+                            <div class="col-12"><p class="text-silver small text-center my-3">কোনো কুইজ রানিং নেই।</p></div>
+                            {% endfor %}
+                        </div>
                     </div>
                 </div>
             </div>

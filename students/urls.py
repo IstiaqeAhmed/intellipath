@@ -7,6 +7,9 @@ from django.urls import path
 from students.views import predict_student, teacher_dashboard
 
 urlpatterns = [
+    path('take-manual-quiz/<int:quiz_id>/',
+         views.take_manual_quiz, name='take_manual_quiz'),
+    path('take-quiz/<int:quiz_id>/', views.take_quiz, name='take_quiz'),
     # ড্যাশবোর্ড এবং হোমপেজ
     path('', views.home, name='home'),
     path('dashboard/', views.dashboard, name='dashboard'),

@@ -195,3 +195,41 @@ class ExamWrittenSubmission(models.Model):
 
     def __str__(self):
         return f"{self.student.username} - {self.exam.title} Written Script"
+# ==========================================
+# 🎯 MANUAL QUIZ SYSTEM (For Official Marks)
+# ==========================================
+
+
+class Quiz(models.Model):
+    course = models.ForeignKey(Course, on_delete=models.CASCADE)
+    title = models.CharField(max_length=255)
+    total_marks = models.IntegerField(default=10)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    def __str__(self):
+        return f"{self.title} - {self.course.title}"
+
+
+class QuizQuestion(models.Model):
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    question_text = models.TextField()
+    option_a = models.CharField(max_length=255)
+    option_b = models.CharField(max_length=255)
+    option_c = models.CharField(max_length=255)
+    option_d = models.CharField(max_length=255)
+    correct_option = models.CharField(
+        max_length=1, choices=[('A', 'A'), ('B', 'B'), ('C', 'C'), ('D', 'D')])
+
+    def __str__(self):
+        return self.question_text
+
+
+class ManualQuizSubmission(models.Model):
+    student = models.ForeignKey(User, on_delete=models.CASCADE)
+    quiz = models.ForeignKey(Quiz, on_delete=models.CASCADE)
+    score_obtained = models.FloatField(default=0)
+    created_at = models.DateTimeField(auto_now_add=True)
+
+    class Meta:
+        # একজন স্টুডেন্ট একবারই কুইজ দিতে পারবে
+        unique_together = ('student', 'quiz')
