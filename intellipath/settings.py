@@ -61,6 +61,7 @@ DATABASES = {
         'PASSWORD': 'npg_1YprX4SiUeCy',
         'HOST': 'ep-gentle-union-ayqbuknc-pooler.c-5.us-east-2.aws.neon.tech',
         'PORT': '5432',
+        'CONN_MAX_AGE': 600,  # এই লাইনটি যোগ করা হলো
         'OPTIONS': {
             'sslmode': 'require',
         },

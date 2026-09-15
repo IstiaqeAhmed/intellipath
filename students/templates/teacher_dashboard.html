@@ -18,25 +18,27 @@
 
     <h2>👨‍🏫 Teacher Dashboard (Student Analytics)</h2>
     
-    <table>
+  <table>
         <thead>
             <tr>
                 <th>ID</th>
-                <th>Student Name</th>
-                <th>Exam Score</th>
-                <th>Assignment Score</th>
-                <th>Quiz Score</th>
-                <th>AI Prediction</th>
+                <th>STUDENT NAME</th>
+                <th>EXAM SCORE</th>
+                <th>ASSIGNMENT SCORE</th>
+                <th>QUIZ SCORE</th>
+                <th>TOTAL SCORE</th>
+                <th>AI PREDICTION</th>
             </tr>
         </thead>
         <tbody>
             {% for student in students %}
             <tr>
                 <td>{{ student.id }}</td>
-                <td><b>{{ student.username }}</b></td>
+                <td>{{ student.username }}</td>
                 <td>{{ student.exam_score }}</td>
                 <td>{{ student.assign_score }}</td>
                 <td>{{ student.quiz_score }}</td>
+                <td><strong>{{ student.total_score }}</strong></td>
                 <td>
                     <a href="{% url 'predict_student' student.id %}" class="btn-predict">🧠 AI Predict</a>
                 </td>
@@ -45,5 +47,22 @@
         </tbody>
     </table>
 
+    <!-- jQuery and DataTables Magic Scripts -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+
+    <script>
+        $(document).ready(function() {
+            $('table').DataTable({
+                "order": [[ 5, "desc" ]], // এখন ডিফল্টভাবে TOTAL SCORE (৬ নম্বর কলাম, যার ইনডেক্স ৫) অনুযায়ী বড় থেকে ছোট সাজানো থাকবে
+                "pageLength": 25,
+                "language": {
+                    "search": "স্টুডেন্ট খুঁজুন:"
+                }
+            });
+        });
+    </script>
+    
 </body>
 </html>
