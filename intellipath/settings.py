@@ -1,13 +1,15 @@
 from pathlib import Path
 import os
+import dj_database_url
 from dotenv import load_dotenv
+
 load_dotenv()
 
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 SECRET_KEY = 'django-insecure-%0-)n0flrm5v+li3b+pdbo)siwm^2%4-81upq-daml)x)yl4*6'
 DEBUG = True
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 INSTALLED_APPS = [
     'students',
@@ -21,6 +23,7 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
+    'whitenoise.middleware.WhiteNoiseMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
     'django.middleware.common.CommonMiddleware',
     'django.middleware.csrf.CsrfViewMiddleware',
@@ -53,21 +56,6 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'intellipath.wsgi.application'
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'neondb',
-        'USER': 'neondb_owner',
-        'PASSWORD': 'npg_1YprX4SiUeCy',
-        'HOST': 'ep-gentle-union-ayqbuknc-pooler.c-5.us-east-2.aws.neon.tech',
-        'PORT': '5432',
-        'CONN_MAX_AGE': 600,  # এই লাইনটি যোগ করা হলো
-        'OPTIONS': {
-            'sslmode': 'require',
-        },
-    }
-}
-
 AUTH_PASSWORD_VALIDATORS = [
     {'NAME': 'django.contrib.auth.password_validation.UserAttributeSimilarityValidator', },
     {'NAME': 'django.contrib.auth.password_validation.MinimumLengthValidator', },
@@ -80,9 +68,28 @@ TIME_ZONE = 'UTC'
 USE_I18N = True
 USE_TZ = True
 
-STATIC_URL = 'static/'
+# Database Setup
+DATABASES = {
+    'default': {
+        'ENGINE': 'django.db.backends.sqlite3',
+        'NAME': BASE_DIR / 'db.sqlite3',
+    }
+}
 
-# 🎯 লগইন রাউটিং ફিক্স (জ্যাঙ্গোর সাদা পেজ গায়েব)
+# Render-এ প্রোডাকশনে উঠলে এটি নিজে থেকেই Neon DB কানেক্ট করে নিবে
+if 'DATABASE_URL' in os.environ:
+    DATABASES['default'] = dj_database_url.config(
+        conn_max_age=600,
+        ssl_require=True
+    )
+
+# Static Files Setup for Render
+STATIC_URL = 'static/'
+STATIC_ROOT = os.path.join(BASE_DIR, 'staticfiles')
+STATICFILES_DIRS = [os.path.join(BASE_DIR, 'static')]
+STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# 🎯 লগইন রাউটিং ফিক্স (জ্যাঙ্গোর সাদা পেজ গায়েব)
 LOGIN_URL = 'login'
 LOGIN_REDIRECT_URL = 'home'
 LOGOUT_REDIRECT_URL = 'home'
