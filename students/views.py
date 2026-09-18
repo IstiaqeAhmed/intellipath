@@ -17,13 +17,13 @@ from django.contrib.auth import logout
 from django.contrib import messages
 from django.http import JsonResponse
 
-from intellipath.config import GOOGLE_API_KEY
+from django.conf import settings
 from .forms import RegistrationForm, UserUpdateForm, ProfileUpdateForm
 from .models import Course, CourseContent, StudentProgress, QuizResult, StudentProfile
 from .models import Exam, ExamQuestion, ExamResult, Assignment, Quiz, QuizQuestion, ManualQuizSubmission, AssignmentSubmission, CreativeQuestion, ExamWrittenSubmission
 
 # --- AI Setup ---
-genai.configure(api_key=GOOGLE_API_KEY)
+genai.configure(api_key=settings.GEMINI_API_KEY)
 
 
 def home(request):
